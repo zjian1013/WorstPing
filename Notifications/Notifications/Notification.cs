@@ -34,13 +34,22 @@ namespace Notifications
 
                 foreach (var n in Notifications)
                 {
-                    if (!n.IsValid)
-                    {
-                        n.Dispose();
-                        Notifications.Remove(n);
-                        break;
-                    }
                     n.Draw();
+                }
+            };
+
+            Drawing.OnPostReset += args =>
+            {
+                if (Notifications.Count == 0)
+                {
+                    return;
+                }
+
+                foreach (var n in Notifications.Where(n => !n.IsValid))
+                {
+                    n.Dispose();
+                    Notifications.Remove(n);
+                    break;
                 }
             };
         }
