@@ -183,6 +183,7 @@ namespace Notifications
             Line.Dispose();
             NextTickAnim = 0;
             Fadeable = false;
+            IsValid = false;
         }
 
         /// <summary>
@@ -206,6 +207,11 @@ namespace Notifications
         /// </summary>
         public void Draw()
         {
+            if (!IsValid)
+            {
+                return;
+            }
+
             if (Fadeable && Environment.TickCount - EndTime > 0)
             {
                 Dispose();
@@ -425,6 +431,11 @@ namespace Notifications
         /// </summary>
         public void Draw()
         {
+            if (!IsValid)
+            {
+                return;
+            }
+
             #region Animation
 
             if (AnimationStage == 0)
