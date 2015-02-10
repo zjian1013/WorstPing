@@ -172,7 +172,7 @@ namespace Notifications
         {
             Memory.Write((int) (Position.Y - 30 * Text.ToList().Count));
 
-            Text = null;
+            Text = new[] { "" };
             TextColor = new ColorBGRA();
             Position = Vector2.Zero;
             ToastColor = new ColorBGRA();
@@ -393,7 +393,7 @@ namespace Notifications
         {
             Memory.Write((int) (Position.Y - 30 * Text.ToList().Count));
 
-            Text = null;
+            Text = new[] { "" };
             TextColor = new ColorBGRA();
             Position = Vector2.Zero;
             ToastColor = new ColorBGRA();
