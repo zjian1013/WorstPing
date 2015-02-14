@@ -39,22 +39,25 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="LeagueSharp">
-      <HintPath>C:\Users\Admin\Desktop\Files\Awesome Folder V3\\System\LeagueSharp.dll</HintPath>
+      <HintPath>..\..\..\System\LeagueSharp.dll</HintPath>
     </Reference>
+    <Reference Include="LeagueSharp.Common">
+      <HintPath>..\..\..\System\LeagueSharp.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL" />
     <Reference Include="SharpDX">
-      <HintPath>C:\Users\Admin\Desktop\Files\Awesome Folder V3\\System\SharpDX.dll</HintPath>
+      <HintPath>..\..\..\System\SharpDX.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.Direct3D9">
-      <HintPath>C:\Users\Admin\Desktop\Files\Awesome Folder V3\\System\SharpDX.Direct3D9.dll</HintPath>
+      <HintPath>..\..\..\System\SharpDX.Direct3D9.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="INotification.cs" />
-    <Compile Include="Memory.cs" />
     <Compile Include="Notification.cs" />
+    <Compile Include="Notifications.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

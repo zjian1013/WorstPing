@@ -1,20 +1,21 @@
-﻿using System;
-
-namespace Notifications
+﻿namespace Notifications
 {
-    /// <summary>
-    ///     INotification :: Dynamic Notifications
-    /// </summary>
-    public interface INotification : IDisposable, ICloneable
+    public interface INotification
     {
         /// <summary>
-        ///     IsValid
+        ///     Gets called when Screen->Present(); is called
         /// </summary>
-        bool IsValid { get; set; }
+        void OnDraw();
 
         /// <summary>
-        ///     Drawing
+        ///     Gets called when Game -> Tick happens and updates the game.
         /// </summary>
-        void Draw();
+        void OnUpdate();
+
+        /// <summary>
+        ///     Returns the Notification ID
+        /// </summary>
+        /// <returns>GUID</returns>
+        string GetId();
     }
 }
