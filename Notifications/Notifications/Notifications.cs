@@ -258,7 +258,7 @@ namespace Notifications
             {
                 for (var i = position - 0x1e; i > 0x55; i -= 0x1e)
                 {
-                    if (array.Contains(position))
+                    if (array.Contains(i))
                     {
                         return false;
                     }

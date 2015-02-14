@@ -195,7 +195,12 @@ namespace Notifications
         /// <summary>
         ///     Locally saved Line
         /// </summary>
-        private readonly Line line = new Line(Drawing.Direct3DDevice);
+        private readonly Line line = new Line(Drawing.Direct3DDevice)
+        {
+            Antialias = false,
+            GLLines = true,
+            Width = 190f
+        };
 
         /// <summary>
         ///     Locally saved Sprite
