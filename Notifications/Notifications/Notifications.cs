@@ -46,7 +46,7 @@ namespace Notifications
         /// <returns>Boolean</returns>
         public static bool AddNotification(INotification notification)
         {
-            return NotificationsList.TryAdd(notification.GetId(), notification);
+            return (notification != null) && NotificationsList.TryAdd(notification.GetId(), notification);
         }
 
         /// <summary>
@@ -58,6 +58,37 @@ namespace Notifications
         {
             INotification dump;
             return NotificationsList.TryRemove(notification.GetId(), out dump);
+        }
+
+        /// <summary>
+        ///     Removes a notification from the notification list
+        /// </summary>
+        /// <param name="id">Notification GUID</param>
+        /// <param name="notification">Notification Instance</param>
+        /// <returns>Boolean</returns>
+        public static bool RemoveNotification(string id, out INotification notification)
+        {
+            return NotificationsList.TryRemove(id, out notification);
+        }
+
+        /// <summary>
+        ///     Validates if a notification currently exists inside the list.
+        /// </summary>
+        /// <param name="notification">Notification Instance</param>
+        /// <returns>Boolean</returns>
+        public static bool IsValidNotification(INotification notification)
+        {
+            return NotificationsList.ContainsKey(notification.GetId());
+        }
+
+        /// <summary>
+        ///     Validates if a notification currently exists inside the list.
+        /// </summary>
+        /// <param name="id">Notification GUID</param>
+        /// <returns></returns>
+        public static bool IsValidNotification(string id)
+        {
+            return NotificationsList.ContainsKey(id);
         }
 
         /// <summary>
@@ -159,26 +190,82 @@ namespace Notifications
 
             array.Sort();
 
-            if (array.Count > 0x0 && array[0x0] > 0x55)
+            // Find a free slot if array does not start from the zero-based location (85)
+            if (array.Count > 0x0 && array[0] > 0x55)
             {
-                for (var i = 0x55; i < array[0x0]; i += 0x1e)
+                for (var i = 0x55; i < array[0]; i += 0x1e)
                 {
                     if (File.Exists(Path + "\\" + (i + 0x1e) + ".lock"))
                     {
+                        // If slot found, return it as value.
                         return i;
                     }
                 }
             }
 
+            // Find a free slot between the current locked locations
             for (var i = 0x0; i < array.Count - 0x1; ++i)
             {
                 if (array[i] + 0x1e != array[i + 0x1])
                 {
+                    // Return free slot which was found between current locked locations
                     return array[i] + 0x1e;
                 }
             }
 
-            return array[array.Count - 0x1] + 0x1e;
+            // Return (last slot + 30) as value
+            return array[array.Count - 1] + 30;
+        }
+
+        /// <summary>
+        ///     Validates if current position is first in line
+        /// </summary>
+        /// <param name="position">Position</param>
+        /// <returns>Boolean</returns>
+        public static bool IsFirst(int position)
+        {
+            if (position == 85)
+            {
+                return true;
+            }
+
+            var files = Directory.GetFiles(Path, "*.lock", SearchOption.TopDirectoryOnly);
+
+            if (!files.Any())
+            {
+                return true;
+            }
+
+            var array = new List<int>();
+
+            foreach (var i in files)
+            {
+                try
+                {
+                    var length = i.IndexOf("Notifications\\", StringComparison.Ordinal) + "Notifications\\".Length;
+                    var str = i.Substring(length, i.Length - length);
+                    var @int = int.Parse(str.Substring(0x0, str.IndexOf('.')));
+
+                    array.Add(@int);
+                }
+                catch (Exception)
+                {
+                    // ignored
+                }
+            }
+
+            if (array.Count > 0x0)
+            {
+                for (var i = position - 0x1e; i > 0x55; i -= 0x1e)
+                {
+                    if (array.Contains(position))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
         }
 
         private static string Path

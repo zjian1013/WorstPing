@@ -1,72 +1,217 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.IO;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
 using SharpDX.Direct3D9;
 
+#endregion
+
 namespace Notifications
 {
+    /// <summary>
+    ///     Basic Notification
+    /// </summary>
     public class Notification : INotification
     {
-        public ColorBGRA BorderColor = new ColorBGRA(255f, 255f, 255f, 255f);
-        public ColorBGRA BoxColor = new ColorBGRA(0f, 0f, 0f, 255f);
-        private int decreasementTick;
-        public bool Draw;
-        public Font Font;
-        private FileStream locationHandler;
-        private Vector2 position;
-        public string Text;
-        public ColorBGRA TextColor = new ColorBGRA(255f, 255f, 255f, 255f);
-        public bool Update;
-        private Vector2 updatePosition = Vector2.Zero;
-        private readonly int duration;
-        private readonly string id;
-        private readonly Line line;
-        private readonly Sprite sprite;
+        #region Other
 
-        public Notification(string text, int duration, bool draw = true, bool update = true)
+        public enum NotificationState
         {
-            id = Guid.NewGuid().ToString("N");
-            Draw = draw;
-            Update = update;
-            Text = text;
-
-            line = new Line(Drawing.Direct3DDevice) { Antialias = false, GLLines = true, Width = 190f };
-            sprite = new Sprite(Drawing.Direct3DDevice);
-            Font = new Font(
-                Drawing.Direct3DDevice, 0xe, 0x0, FontWeight.DoNotCare, 0x0, false, FontCharacterSet.Default,
-                FontPrecision.Default, FontQuality.Antialiased,
-                FontPitchAndFamily.DontCare | FontPitchAndFamily.Decorative, "Tahoma");
-
-            this.duration = duration;
-            if (duration > 0)
-            {
-                decreasementTick = GetNextDecreasementTick();
-            }
-
-            if (draw)
-            {
-                var yAxis = Notifications.GetLocation();
-                if (yAxis != -1)
-                {
-                    locationHandler = Notifications.Reserve(GetId());
-                    if (locationHandler != null)
-                    {
-                        position = new Vector2(Drawing.Width - 200f, yAxis);
-                    }
-                }
-                else
-                {
-                    Draw = false;
-                    Update = false;
-                }
-            }
+            Idle,
+            AnimationMove,
+            AnimationShowUpdate
         }
 
+        #endregion
+
+        /// <summary>
+        ///     Notification Constructor
+        /// </summary>
+        /// <param name="text">Display Text</param>
+        /// <param name="duration">Duration (-1 for Infinite)</param>
+        public Notification(string text, int duration = -0x1)
+        {
+            // Setting GUID
+            id = Guid.NewGuid().ToString("N");
+
+            // Setting main values
+            Text = text;
+            state = NotificationState.Idle;
+
+            // Calling Show
+            Show(duration);
+        }
+
+        #region Functions
+
+        /// <summary>
+        ///     Show an inactive Notification, returns boolean if successful or not.
+        /// </summary>
+        /// <param name="newDuration">Duration (-1 for Infinite)</param>
+        /// <returns></returns>
+        public bool Show(int newDuration = -0x1)
+        {
+            if (draw || update)
+            {
+                // TODO: Beaving's fancy animation.
+                return false;
+            }
+
+            var yAxis = Notifications.GetLocation();
+            if (yAxis != -0x1)
+            {
+                handler = Notifications.Reserve(GetId());
+                if (handler != null)
+                {
+                    duration = newDuration;
+
+                    TextColor.A = 0xff;
+                    BoxColor.A = 0xff;
+                    BorderColor.A = 0xff;
+
+                    position = new Vector2(Drawing.Width - 200f, yAxis);
+
+                    decreasementTick = GetNextDecreasementTick();
+
+                    draw = update = true;
+
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        ///     Calculate the next decreasement tick.
+        /// </summary>
+        /// <returns>Decreasement Tick</returns>
+        private int GetNextDecreasementTick()
+        {
+            return Environment.TickCount + ((duration / 0xff));
+        }
+
+        /// <summary>
+        ///     Calculate the border into vertices
+        /// </summary>
+        /// <param name="x">X axis</param>
+        /// <param name="y">Y axis</param>
+        /// <param name="w">Width</param>
+        /// <param name="h">Height</param>
+        /// <returns>Vector2 Array</returns>
+        private static Vector2[] GetBorder(float x, float y, float w, float h)
+        {
+            return new[] { new Vector2(x + w / 0x2, y), new Vector2(x + w / 0x2, y + h) };
+        }
+
+        #endregion
+
+        #region Public Fields
+
+        /// <summary>
+        ///     Notification's Text
+        /// </summary>
+        public string Text;
+
+        #region Colors
+
+        /// <summary>
+        ///     Notification's Text Color
+        /// </summary>
+        public ColorBGRA TextColor = new ColorBGRA(255f, 255f, 255f, 255f);
+
+        /// <summary>
+        ///     Notification's Box Color
+        /// </summary>
+        public ColorBGRA BoxColor = new ColorBGRA(0f, 0f, 0f, 255f);
+
+        /// <summary>
+        ///     Notification's Border Color
+        /// </summary>
+        public ColorBGRA BorderColor = new ColorBGRA(255f, 255f, 255f, 255f);
+
+        /// <summary>
+        ///     Notification's Font
+        /// </summary>
+        public Font Font = new Font(
+            Drawing.Direct3DDevice, 0xe, 0x0, FontWeight.Bold, 0x0, false, FontCharacterSet.Default,
+            FontPrecision.Default, FontQuality.Antialiased, FontPitchAndFamily.DontCare | FontPitchAndFamily.Decorative,
+            "Tahoma");
+
+        #endregion
+
+        #endregion
+
+        #region Private Fields
+
+        /// <summary>
+        ///     Locally saved Global Unique Identification (GUID)
+        /// </summary>
+        private readonly string id;
+
+        /// <summary>
+        ///     Locally saved Notification's Duration
+        /// </summary>
+        private int duration;
+
+        /// <summary>
+        ///     Locally saved bool, indicating if OnDraw should be executed/processed.
+        /// </summary>
+        private bool draw;
+
+        /// <summary>
+        ///     Locally saved bool, indicating if OnUpdate should be executed/processed.
+        /// </summary>
+        private bool update;
+
+        /// <summary>
+        ///     Locally saved handler for FileStream.
+        /// </summary>
+        private FileStream handler;
+
+        /// <summary>
+        ///     Locally saved position
+        /// </summary>
+        private Vector2 position;
+
+        /// <summary>
+        ///     Locally saved update position
+        /// </summary>
+        private Vector2 updatePosition;
+
+        /// <summary>
+        ///     Locally saved Notification State
+        /// </summary>
+        private NotificationState state;
+
+        /// <summary>
+        ///     Locally saved value, indicating when next decreasment tick should happen.
+        /// </summary>
+        private int decreasementTick;
+
+        /// <summary>
+        ///     Locally saved Line
+        /// </summary>
+        private readonly Line line = new Line(Drawing.Direct3DDevice);
+
+        /// <summary>
+        ///     Locally saved Sprite
+        /// </summary>
+        private readonly Sprite sprite = new Sprite(Drawing.Direct3DDevice);
+
+        #endregion
+
+        #region Required Functions
+
+        /// <summary>
+        ///     Called for Drawing onto screen
+        /// </summary>
         public void OnDraw()
         {
-            if (!Draw)
+            if (!draw)
             {
                 return;
             }
@@ -125,82 +270,110 @@ namespace Notifications
             #endregion
         }
 
+        /// <summary>
+        ///     Called per game tick for update
+        /// </summary>
         public void OnUpdate()
         {
-            if (!Update)
+            if (!update)
             {
                 return;
             }
 
-            if (updatePosition == Vector2.Zero)
+            switch (state)
             {
-                if (TextColor.A == 0 && BoxColor.A == 0 && BorderColor.A == 0)
+                case NotificationState.Idle:
                 {
-                    Draw = false;
-                    Update = false;
-                    Notifications.Free(locationHandler);
-                    return;
-                }
+                    #region Duration End Handler
 
-                if (duration > 0 && Environment.TickCount - decreasementTick > 0)
-                {
-                    if (TextColor.A > 0)
+                    if (duration > 0x0 && TextColor.A == 0x0 && BoxColor.A == 0x0 && BorderColor.A == 0x0)
                     {
-                        TextColor.A--;
+                        update = false;
+                        draw = false;
+                        Notifications.Free(handler);
+                        return;
                     }
-                    if (BoxColor.A > 0)
-                    {
-                        BoxColor.A--;
-                    }
-                    if (BorderColor.A > 0)
-                    {
-                        BorderColor.A--;
-                    }
-                    decreasementTick = GetNextDecreasementTick();
-                }
 
-                var location = Notifications.GetLocation();
-                if (location != -1 && position.Y > location)
-                {
-                    var b = Notifications.Reserve(GetId());
-                    if (b != null)
+                    #endregion
+
+                    #region Decreasement Tick
+
+                    if (duration > 0x0 && Environment.TickCount - decreasementTick > 0x0)
                     {
-                        Notifications.Free(locationHandler);
-                        locationHandler = b;
-                        updatePosition = new Vector2(position.X, location);
+                        if (TextColor.A > 0x0)
+                        {
+                            TextColor.A--;
+                        }
+                        if (BoxColor.A > 0x0)
+                        {
+                            BoxColor.A--;
+                        }
+                        if (BorderColor.A > 0x0)
+                        {
+                            BorderColor.A--;
+                        }
+
+                        decreasementTick = GetNextDecreasementTick();
                     }
+
+                    #endregion
+
+                    #region Movement
+
+                    var location = Notifications.GetLocation();
+                    if (location != -0x1 && position.Y > location)
+                    {
+                        if (Notifications.IsFirst((int) position.Y))
+                        {
+                            var b = Notifications.Reserve(GetId());
+                            if (b != null)
+                            {
+                                Notifications.Free(handler);
+                                handler = b;
+                                updatePosition = new Vector2(position.X, location);
+                                state = NotificationState.AnimationMove;
+                            }
+                        }
+                    }
+
+                    #endregion
+
+                    break;
                 }
-            }
-            else
-            {
-                if (Math.Abs(position.Y - updatePosition.Y) > float.Epsilon)
+                case NotificationState.AnimationMove:
                 {
-                    var value = (updatePosition.Distance(new Vector2(position.X, position.Y - 0x1)) <
-                                 updatePosition.Distance(new Vector2(position.X, position.Y + 0x1)))
-                        ? -1
-                        : 1;
-                    position.Y += value;
-                }
-                else
-                {
-                    updatePosition = Vector2.Zero;
+                    #region Movement
+
+                    if (Math.Abs(position.Y - updatePosition.Y) > float.Epsilon)
+                    {
+                        var value = (updatePosition.Distance(new Vector2(position.X, position.Y - 0x1)) <
+                                     updatePosition.Distance(new Vector2(position.X, position.Y + 0x1)))
+                            ? -0x1
+                            : 0x1;
+                        position.Y += value;
+                    }
+                    else
+                    {
+                        updatePosition = Vector2.Zero;
+                        state = NotificationState.Idle;
+                    }
+
+                    #endregion
+
+                    break;
                 }
             }
         }
 
+        /// <summary>
+        ///     Returns the notification's global unique identification (GUID)
+        /// </summary>
+        /// <returns>GUID</returns>
         public string GetId()
         {
             return id;
         }
 
-        private static Vector2[] GetBorder(float x, float y, float w, float h)
-        {
-            return new[] { new Vector2(x + w / 0x2, y), new Vector2(x + w / 0x2, y + h) };
-        }
-
-        private int GetNextDecreasementTick()
-        {
-            return Environment.TickCount + ((duration / 255));
-        }
+        #endregion
     }
 }
