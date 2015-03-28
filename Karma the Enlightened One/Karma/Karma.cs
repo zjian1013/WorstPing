@@ -52,7 +52,7 @@ namespace Karma
             #region OnGameUpdate
 
             // Add event listener onto OnGameUpdate delegate
-            Game.OnGameUpdate += args =>
+            Game.OnUpdate += args =>
             {
                 if (Instances.Player == null || Instances.Orbwalker == null || Instances.Menu == null)
                 {
