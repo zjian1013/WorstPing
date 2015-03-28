@@ -120,7 +120,7 @@ namespace Yasuo
             }
 
             // => Events
-            Game.OnGameUpdate += Yasuo.Game.OnGameUpdate; // => On Game Update
+            Game.OnUpdate += Yasuo.Game.OnGameUpdate; // => On Game Update
 
             // => Notify
             Game.PrintChat(
