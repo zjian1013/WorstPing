@@ -36,13 +36,12 @@ namespace Syndra
 
         public static double GetUnleashedPowerDamage(this Obj_AI_Base target)
         {
-            if (Mechanics.Spells[SpellSlot.R].IsReady())
-            {
-                var damage = 45 + Mechanics.Spells[SpellSlot.R].Level * 45 + EntryPoint.Player.FlatMagicDamageMod * .2f;
-                return EntryPoint.Player.CalcDamage(target, Damage.DamageType.Magical, damage) *
-                       Mechanics.Spells[SpellSlot.R].Instance.Instance.Ammo;
-            }
-            return 0d;
+            return Mechanics.Spells[SpellSlot.R].IsReady()
+                ? EntryPoint.Player.CalcDamage(
+                    target, Damage.DamageType.Magical,
+                    45 + Mechanics.Spells[SpellSlot.R].Level * 45 + EntryPoint.Player.FlatMagicDamageMod * .2f) *
+                  Mechanics.Spells[SpellSlot.R].Instance.Instance.Ammo
+                : 0d;
         }
 
         public static double GetIgniteDamage(this Obj_AI_Hero target)

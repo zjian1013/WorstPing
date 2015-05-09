@@ -121,7 +121,7 @@ namespace Syndra
             harass.AddItem(
                 new MenuItem("l33t.stds.harass.turret", "[Condition] Disable Harass under turret").SetValue(false));
             harass.AddItem(
-                new MenuItem("l33t.stds.harass.mana", "[Condition] Harass if mana is above").SetValue(new Slider(30, 1)));
+                new MenuItem("l33t.stds.harass.mana", "[Condition] Harass if mana is above").SetValue(new Slider(30)));
             harass.AddItem(
                 new MenuItem("l33t.stds.harass.usemixed", "[Condition] Use Orbwalker 'Mixed' key for Harass").SetValue(
                     true));
@@ -139,6 +139,8 @@ namespace Syndra
             farm.AddItem(
                 new MenuItem("l33t.stds.farming.emode", "Use Scatter the Weak (E)").SetValue(
                     new StringList(new[] { "Freeze", "Lane Clear", "Both", "None" }, 3)));
+            farm.AddItem(new MenuItem("l33t.stds.farming.farmmana", "[Condition] Minimum % of Mana for Last Hit").SetValue(new Slider(30)));
+            farm.AddItem(new MenuItem("l33t.stds.farming.lcmana", "[Condition] Minimum % of Mana for Lane Clear").SetValue(new Slider(30)));
             Menu.AddSubMenu(farm);
             var jungleFarm = new Menu("Jungle Farm Settings", "l33t.stds.junglefarming");
             jungleFarm.AddItem(new MenuItem("l33t.stds.junglefarming.qmode", "Use Dark Sphere (Q)").SetValue(true));
@@ -215,11 +217,11 @@ namespace Syndra
             qeSettings.AddItem(
                 new MenuItem(
                     "l33t.stds.qesettings.qedelay", "[Combination] Dark Sphere (Q) + Scatter the Weak (E) delay")
-                    .SetValue(new Slider(1, 1, 150)));
+                    .SetValue(new Slider(1, 0, 150)));
             qeSettings.AddItem(
                 new MenuItem(
                     "l33t.stds.qesettings.qerange", "[Condition] Dark Sphere (Q) + Scatter the Weak (E) max range %")
-                    .SetValue(new Slider(100, 1)));
+                    .SetValue(new Slider(100)));
             qeSettings.AddItem(
                 new MenuItem(
                     "l33t.stds.qesettings.qetocursor", "Use Dark Sphere (Q) + Scatter the Weak (E) to enemy near cursor")
