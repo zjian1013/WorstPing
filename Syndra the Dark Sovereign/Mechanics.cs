@@ -48,7 +48,7 @@ namespace Syndra
             }
 
             if (useSphereE && targets[SpellSlot.SphereE].IsValidTarget() &&
-                Collision.DetectCollision(targets[SpellSlot.SphereE]) && Spells[SpellSlot.Q].IsReady() &&
+                !Collision.DetectCollision(targets[SpellSlot.SphereE]) && Spells[SpellSlot.Q].IsReady() &&
                 (Spells[SpellSlot.E].IsReady() ||
                  (Spells[SpellSlot.E].Instance.Instance.CooldownExpires - Game.Time < 1 && Spells[SpellSlot.E].Level > 0)) &&
                 Spells[SpellSlot.Q].Instance.Instance.ManaCost + Spells[SpellSlot.E].Instance.Instance.ManaCost <=
@@ -170,29 +170,33 @@ namespace Syndra
 
         public static void ProcessSphereE(Obj_AI_Base target)
         {
-            var unitPosition =
-                Prediction.GetPrediction(target, Spells[SpellSlot.Q].Delay + Spells[SpellSlot.E].Delay).UnitPosition;
-            if (EntryPoint.Player.Distance(unitPosition, true) > Math.Pow(Spells[SpellSlot.E].Range, 2))
+            if (Spells[SpellSlot.Q].IsReady() && Spells[SpellSlot.E].IsReady() && target.IsValidTarget())
             {
-                var sphere = EntryPoint.Player.ServerPosition +
-                             (unitPosition - EntryPoint.Player.ServerPosition).Normalized() * Spells[SpellSlot.E].Range;
-                Spells[SpellSlot.SphereE].Instance.Delay = Spells[SpellSlot.Q].Delay + Spells[SpellSlot.E].Delay +
-                                                           EntryPoint.Player.Distance(sphere) /
-                                                           Spells[SpellSlot.E].MissileSpeed;
-                var prediction = Spells[SpellSlot.SphereE].Instance.GetPrediction(target);
-                if (prediction.Hitchance >= HitChance.Medium)
+                var targetPosition =
+                    Prediction.GetPrediction(target, Spells[SpellSlot.Q].Delay + Spells[SpellSlot.E].Delay).UnitPosition;
+                if (EntryPoint.Player.Distance(target, true) > Math.Pow(Spells[SpellSlot.E].Range, 2))
                 {
-                    CastSphereE(target, sphere);
+                    var sphere = EntryPoint.Player.Position +
+                                 (targetPosition - EntryPoint.Player.Position).Normalized() * Spells[SpellSlot.E].Range;
+                    Spells[SpellSlot.SphereE].Instance.Delay = Spells[SpellSlot.Q].Delay + Spells[SpellSlot.E].Delay +
+                                                               EntryPoint.Player.Distance(sphere) /
+                                                               Spells[SpellSlot.E].Instance.Speed;
+                    var prediction = Spells[SpellSlot.SphereE].Instance.GetPrediction(target);
+                    if (prediction.Hitchance >= HitChance.Medium)
+                    {
+                        CastSphereE(target, sphere);
+                    }
                 }
-            }
-            else
-            {
-                Spells[SpellSlot.Q].Instance.Width = 40f;
-                var prediction = Spells[SpellSlot.Q].Instance.GetPrediction(target, true);
-                Spells[SpellSlot.Q].Instance.Width = Spells[SpellSlot.Q].Radius;
-                if (prediction.Hitchance >= HitChance.VeryHigh)
+                else
                 {
-                    CastSphereE(target, prediction.UnitPosition);
+                    var width = Spells[SpellSlot.Q].Instance.Width;
+                    Spells[SpellSlot.Q].Instance.Width = 48;
+                    var prediction = Spells[SpellSlot.Q].Instance.GetPrediction(target, true);
+                    Spells[SpellSlot.Q].Instance.Width = width;
+                    if (prediction.Hitchance >= HitChance.VeryHigh)
+                    {
+                        CastSphereE(target, prediction.UnitPosition);
+                    }
                 }
             }
         }
@@ -421,50 +425,50 @@ namespace Syndra
                     }
                 }
             }
-            if (!useW || !Spells[SpellSlot.W].IsReady() || allMinionsW.Count <= 3 || !laneClear)
+            if (useW && Spells[SpellSlot.W].IsReady() && allMinionsW.Count >= 3 && laneClear)
             {
-                return;
-            }
-            if (Spells[SpellSlot.W].Instance.Instance.ToggleState == 1)
-            {
-                var gObjectPos = GetGrabbableObjectPos(false);
-                if (gObjectPos.To2D().IsValid() &&
-                    Environment.TickCount - Spells[SpellSlot.W].LastCastAttemptTick > Game.Ping + 150)
+                if (Spells[SpellSlot.W].Instance.Instance.ToggleState == 1)
                 {
-                    Spells[SpellSlot.W].Instance.Cast(gObjectPos);
-                    Spells[SpellSlot.W].LastCastAttemptTick = (int) (Game.ClockTime * 0x3E8);
+                    var gObjectPos = GetGrabbableObjectPos(false);
+                    if (gObjectPos.To2D().IsValid() &&
+                        Environment.TickCount - Spells[SpellSlot.W].LastCastAttemptTick > Game.Ping + 150)
+                    {
+                        Spells[SpellSlot.W].Instance.Cast(gObjectPos);
+                        Spells[SpellSlot.W].LastCastAttemptTick = (int) (Game.ClockTime * 0x3E8);
+                    }
+                }
+                else if (Spells[SpellSlot.W].Instance.Instance.ToggleState == 2)
+                {
+                    var fl1 = Spells[SpellSlot.Q].Instance.GetCircularFarmLocation(
+                        rangedMinionsW, Spells[SpellSlot.W].Instance.Width);
+                    var fl2 = Spells[SpellSlot.Q].Instance.GetCircularFarmLocation(
+                        allMinionsW, Spells[SpellSlot.W].Instance.Width);
+                    if (fl1.MinionsHit >= 3 && Spells[SpellSlot.W].Instance.IsInRange(fl1.Position.To3D()))
+                    {
+                        Spells[SpellSlot.W].Instance.Cast(fl1.Position);
+                        Spells[SpellSlot.W].LastCastAttemptTick = (int) (Game.ClockTime * 0x3E8);
+                    }
+                    else if (fl2.MinionsHit >= 1 && Spells[SpellSlot.W].Instance.IsInRange(fl2.Position.To3D()) &&
+                             fl1.MinionsHit <= 2)
+                    {
+                        Spells[SpellSlot.W].Instance.Cast(fl2.Position);
+                        Spells[SpellSlot.W].LastCastAttemptTick = (int) (Game.ClockTime * 0x3E8);
+                    }
                 }
             }
-            else if (Spells[SpellSlot.W].Instance.Instance.ToggleState != 1)
-            {
-                var fl1 = Spells[SpellSlot.Q].Instance.GetCircularFarmLocation(
-                    rangedMinionsW, Spells[SpellSlot.W].Instance.Width);
-                var fl2 = Spells[SpellSlot.Q].Instance.GetCircularFarmLocation(
-                    allMinionsW, Spells[SpellSlot.W].Instance.Width);
-                if (fl1.MinionsHit >= 3 && Spells[SpellSlot.W].Instance.IsInRange(fl1.Position.To3D()))
-                {
-                    Spells[SpellSlot.W].Instance.Cast(fl1.Position);
-                    Spells[SpellSlot.W].LastCastAttemptTick = (int) (Game.ClockTime * 0x3E8);
-                }
-                else if (fl2.MinionsHit >= 1 && Spells[SpellSlot.W].Instance.IsInRange(fl2.Position.To3D()) &&
-                         fl1.MinionsHit <= 2)
-                {
-                    Spells[SpellSlot.W].Instance.Cast(fl2.Position);
-                    Spells[SpellSlot.W].LastCastAttemptTick = (int) (Game.ClockTime * 0x3E8);
-                }
-            }
-            if (useE && Spells[SpellSlot.E].IsReady())
+            if (useE && Spells[SpellSlot.E].IsReady() && allMinionsE.Count >= 3 && laneClear)
             {
                 var fl1 = Spells[SpellSlot.E].Instance.GetCircularFarmLocation(
                     rangedMinionsE, Spells[SpellSlot.E].Instance.Width);
                 var fl2 = Spells[SpellSlot.E].Instance.GetCircularFarmLocation(
                     allMinionsE, Spells[SpellSlot.E].Instance.Width);
-                if (fl1.MinionsHit >= 3)
+                if (fl1.MinionsHit >= 3 && Spells[SpellSlot.E].Instance.IsInRange(fl1.Position.To3D()))
                 {
                     Spells[SpellSlot.E].Instance.Cast(fl1.Position);
                     Spells[SpellSlot.E].LastCastAttemptTick = (int) (Game.ClockTime * 0x3E8);
                 }
-                else if (fl2.MinionsHit >= 1 && fl1.MinionsHit <= 2)
+                else if (fl2.MinionsHit >= 1 && Spells[SpellSlot.E].Instance.IsInRange(fl1.Position.To3D()) &&
+                         fl1.MinionsHit <= 2)
                 {
                     Spells[SpellSlot.E].Instance.Cast(fl2.Position);
                     Spells[SpellSlot.E].LastCastAttemptTick = (int) (Game.ClockTime * 0x3E8);

@@ -39,6 +39,9 @@ namespace Syndra
                 case 3:
                     Instance.SetSkillshot(delay, radius, missileSpeed, false, SkillshotType.SkillshotCircle);
                     break;
+                case 4:
+                    Instance.SetSkillshot(delay, radius, missileSpeed, false, SkillshotType.SkillshotCone);
+                    break;
             }
 
             RangeFunc = rangeFunc;

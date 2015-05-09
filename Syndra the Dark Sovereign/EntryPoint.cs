@@ -74,17 +74,17 @@ namespace Syndra
             {
                 Mechanics.ProcessHarass(target);
             }
-            if (Menu.Item("l33t.stds.qesettings.qetocursor").GetValue<KeyBind>().Active && Mechanics.Spells[SpellSlot.E].IsReady() && Mechanics.Spells[SpellSlot.Q].IsReady())
+            if (Menu.Item("l33t.stds.qesettings.qetocursor").GetValue<KeyBind>().Active &&
+                Mechanics.Spells[SpellSlot.E].IsReady() && Mechanics.Spells[SpellSlot.Q].IsReady())
             {
-                foreach (
-                    var enemy in
-                        ObjectCache.GetHeroes()
-                            .Where(
-                                e =>
-                                    e.IsValidTarget() &&
-                                    Player.Distance(e.Position, true) <=
-                                    Math.Pow(Mechanics.Spells[SpellSlot.SphereE].Range, 2) &&
-                                    e.Distance(Game.CursorPos, true) <= 22500))
+                foreach (var enemy in
+                    ObjectCache.GetHeroes()
+                        .Where(
+                            e =>
+                                e.IsValidTarget() &&
+                                Player.Distance(e.Position, true) <=
+                                Math.Pow(Mechanics.Spells[SpellSlot.SphereE].Range, 2) &&
+                                e.Distance(Game.CursorPos, true) <= 22500))
                 {
                     Mechanics.ProcessSphereE(enemy);
                 }
@@ -149,8 +149,7 @@ namespace Syndra
             ks.AddItem(new MenuItem("l33t.stds.ks.useQ", "Use Dark Sphere (Q)")).SetValue(true);
             ks.AddItem(new MenuItem("l33t.stds.ks.useW", "Use Force of Will (W)")).SetValue(true);
             ks.AddItem(new MenuItem("l33t.stds.ks.useE", "Use Scatter the Weak (E)")).SetValue(true);
-            ks.AddItem(
-                new MenuItem("l33t.stds.ks.useQE", "[Combination] Use Dark Sphere (Q) + Scatter the Weak (E)"))
+            ks.AddItem(new MenuItem("l33t.stds.ks.useQE", "[Combination] Use Dark Sphere (Q) + Scatter the Weak (E)"))
                 .SetValue(true);
             ks.AddItem(new MenuItem("l33t.stds.ks.useR", "Use Unleashed Power (R)")).SetValue(true);
             ks.AddItem(
@@ -177,8 +176,8 @@ namespace Syndra
             {
                 ultimateSettings.AddItem(
                     new MenuItem(
-                        "l33t.stds.ups.ignore." + hero.ChampionName, "[Usage] Use Unleashed Power on " + hero.ChampionName))
-                    .SetValue(true);
+                        "l33t.stds.ups.ignore." + hero.ChampionName,
+                        "[Usage] Use Unleashed Power on " + hero.ChampionName)).SetValue(true);
             }
             ultimateSettings.AddItem(new MenuItem("l33t.stds.ups.spacer0", ""));
             ultimateSettings.AddItem(
@@ -191,15 +190,24 @@ namespace Syndra
             ultimateSettings.AddItem(new MenuItem("l33t.stds.ups.disable.E", "Dark Sphere (E)").SetValue(true));
             ultimateSettings.AddItem(new MenuItem("l33t.stds.ups.disable.AA", "1 x Auto Attack").SetValue(true));
             ultimateSettings.AddItem(new MenuItem("l33t.stds.ups.spacer2", ""));
-            ultimateSettings.AddItem(new MenuItem("l33t.stds.ups.disablebuff", "[ Don't use Unleased Power (R) if enemy has buff ]"));
-            ultimateSettings.AddItem(new MenuItem("l33t.stds.ups.disablebuff.undying", "Tryndamere's Undying Rage (R)").SetValue(true));
-            ultimateSettings.AddItem(new MenuItem("l33t.stds.ups.disablebuff.judicator", "Kayle's Intervention (R)").SetValue(true));
-            ultimateSettings.AddItem(new MenuItem("l33t.stds.ups.disablebuff.alistar", "Alistar's Unbreakable Will (R)").SetValue(true));
-            ultimateSettings.AddItem(new MenuItem("l33t.stds.ups.disablebuff.zilean", "Zilean's Chronoshift (R)").SetValue(true));
-            ultimateSettings.AddItem(new MenuItem("l33t.stds.ups.disablebuff.zac", "Zac's Cell Division (Passive)").SetValue(true));
-            ultimateSettings.AddItem(new MenuItem("l33t.stds.ups.disablebuff.aatrox", "Aatrox's Blood Well (Passive)").SetValue(true));
-            ultimateSettings.AddItem(new MenuItem("l33t.stds.ups.disablebuff.sivir", "Sivir's Spell Shield (E)").SetValue(true));
-            ultimateSettings.AddItem(new MenuItem("l33t.stds.ups.disablebuff.morgana", "Morgana's Black Shield (E)").SetValue(true));
+            ultimateSettings.AddItem(
+                new MenuItem("l33t.stds.ups.disablebuff", "[ Don't use Unleased Power (R) if enemy has buff ]"));
+            ultimateSettings.AddItem(
+                new MenuItem("l33t.stds.ups.disablebuff.undying", "Tryndamere's Undying Rage (R)").SetValue(true));
+            ultimateSettings.AddItem(
+                new MenuItem("l33t.stds.ups.disablebuff.judicator", "Kayle's Intervention (R)").SetValue(true));
+            ultimateSettings.AddItem(
+                new MenuItem("l33t.stds.ups.disablebuff.alistar", "Alistar's Unbreakable Will (R)").SetValue(true));
+            ultimateSettings.AddItem(
+                new MenuItem("l33t.stds.ups.disablebuff.zilean", "Zilean's Chronoshift (R)").SetValue(true));
+            ultimateSettings.AddItem(
+                new MenuItem("l33t.stds.ups.disablebuff.zac", "Zac's Cell Division (Passive)").SetValue(true));
+            ultimateSettings.AddItem(
+                new MenuItem("l33t.stds.ups.disablebuff.aatrox", "Aatrox's Blood Well (Passive)").SetValue(true));
+            ultimateSettings.AddItem(
+                new MenuItem("l33t.stds.ups.disablebuff.sivir", "Sivir's Spell Shield (E)").SetValue(true));
+            ultimateSettings.AddItem(
+                new MenuItem("l33t.stds.ups.disablebuff.morgana", "Morgana's Black Shield (E)").SetValue(true));
 
             Menu.AddSubMenu(ultimateSettings);
 
@@ -224,13 +232,17 @@ namespace Syndra
                     "l33t.stds.misc.ignitecd", "[Summoner Spell] Use Ignite only when all spells are on cooldown")
                     .SetValue(false));
             misc.AddItem(new MenuItem("l33t.stds.misc.antigapcloser", "Use Anti Gapcloser").SetValue(true));
-            misc.AddItem(new MenuItem("l33t.stds.misc.interrupt", "Use Interrupt on interruptable important spells").SetValue(true));
+            misc.AddItem(
+                new MenuItem("l33t.stds.misc.interrupt", "Use Interrupt on interruptable important spells").SetValue(
+                    true));
             misc.AddItem(new MenuItem("l33t.stds.misc.welcomesound", "Startup Sound (Welcome)").SetValue(false));
             misc.AddItem(new MenuItem("l33t.stds.misc.sounds", "In-Game Sounds (Random)").SetValue(false));
             Menu.AddSubMenu(misc);
 
             var drawing = new Menu("Drawing", "l33t.stds.drawing");
+            drawing.AddItem(new MenuItem("l33t.stds.drawing.enabledraw", "Enable Drawing").SetValue(true));
             drawing.AddItem(new MenuItem("l33t.stds.drawing.classic", "Draw Classic Circles").SetValue(false));
+            drawing.AddItem(new MenuItem("l33t.stds.drawing.spacer0", ""));
             drawing.AddItem(
                 new MenuItem("l33t.stds.drawing.drawQ", "Draw Dark Sphere (Q) Range").SetValue(
                     new Circle(true, Color.FromArgb(100, 255, 0, 255))));
@@ -244,12 +256,13 @@ namespace Syndra
                 new MenuItem("l33t.stds.drawing.drawR", "Draw Unleashed Power (R) Range").SetValue(
                     new Circle(false, Color.FromArgb(100, 255, 0, 255))));
             drawing.AddItem(
-                new MenuItem("l33t.stds.drawing.drawSphereE", "Draw Dark Sphere (Q) + Scatter the Weak (E) Range").SetValue(
-                    new Circle(true, Color.FromArgb(100, 255, 0, 255))));
+                new MenuItem("l33t.stds.drawing.drawSphereE", "Draw Dark Sphere (Q) + Scatter the Weak (E) Range")
+                    .SetValue(new Circle(true, Color.FromArgb(100, 255, 0, 255))));
             drawing.AddItem(
                 new MenuItem(
                     "l33t.stds.drawing.drawQEC", "Draw Dark Sphere (Q) + Scatter the Weak (E) Cursor Indicator")
                     .SetValue(new Circle(false, Color.FromArgb(100, 255, 0, 255))));
+            drawing.AddItem(new MenuItem("l33t.stds.drawing.spacer1", ""));
             drawing.AddItem(
                 new MenuItem("l33t.stds.drawing.drawQEMAP", "Draw Dark Sphere (Q) + Scatter the Weak (E) Parameters")
                     .SetValue(true));
@@ -262,7 +275,6 @@ namespace Syndra
             drawing.AddItem(new MenuItem("l33t.stds.drawing.drawKillText", "Draw Kill Text").SetValue(true));
             drawing.AddItem(
                 new MenuItem("l33t.stds.drawing.drawKillTextHP", "Draw % Health Points after Combo Text").SetValue(true));
-            drawing.AddItem(new MenuItem("l33t.stds.drawing.drawText", "Draw Combo Text").SetValue(false));
             drawing.AddItem(new MenuItem("l33t.stds.drawing.drawDebug", "Draw Debug").SetValue(false));
             Menu.AddSubMenu(drawing);
 
@@ -292,7 +304,7 @@ namespace Syndra
                 {
                     SpellSlot.E,
                     new SpellData(
-                        LeagueSharp.SpellSlot.E, TargetSelector.DamageType.Magical, 1, "SyndraE", 0.3f, 0f, 0f, 1601,
+                        LeagueSharp.SpellSlot.E, TargetSelector.DamageType.Magical, 4, "SyndraE", 0.3f, 0f, 0f, 1601,
                         () =>
                             (float)
                                 (950 *

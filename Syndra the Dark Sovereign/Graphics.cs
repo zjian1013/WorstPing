@@ -21,54 +21,54 @@ namespace Syndra
 
         public static void OnDraw(EventArgs args)
         {
-            if (EntryPoint.Menu.Item("l33t.stds.drawing.drawDebug").GetValue<bool>())
+            if (EntryPoint.Menu.Item("l33t.stds.drawing.enabledraw").GetValue<bool>())
             {
-                var minions = ObjectCache.GetMinions();
-                var heros = ObjectCache.GetHeroes();
-
-                Sprite.Begin(SpriteFlags.AlphaBlend);
-
-                Font.DrawText(
-                    Sprite, "Close Minion Count: " + (minions != null ? minions.Count(m => m.IsValidTarget(475f)) : 0),
-                    (int)(Drawing.Width * 0.90f), (int)(Drawing.Height * 0.64f), Color.White);
-                Font.DrawText(
-                    Sprite, "Minion Count: " + (minions != null ? minions.Count() : 0), (int)(Drawing.Width * 0.90f),
-                    (int)(Drawing.Height * 0.625f), Color.White);
-                Font.DrawText(
-                    Sprite, "Hero Count: " + (heros != null ? heros.Count() : 0), (int)(Drawing.Width * 0.90f),
-                    (int)(Drawing.Height * 0.615f), Color.White);
-                FontB.DrawText(
-                    Sprite, "Welcome back, " + ObjectManager.Player.Name + ".", (int)(Drawing.Width * 0.90f),
-                    (int)(Drawing.Height * 0.60f), Color.Red);
-
-                Sprite.End();
-            }
-
-            var classic = EntryPoint.Menu.Item("l33t.stds.drawing.classic").GetValue<bool>();
-            var playerPosition = EntryPoint.Player.Position;
-
-            foreach (var spell in
-                Mechanics.Spells.Where(
-                    spell =>
-                        EntryPoint.Menu.Item("l33t.stds.drawing.draw" + spell.Key) != null &&
-                        EntryPoint.Menu.Item("l33t.stds.drawing.draw" + spell.Key).GetValue<Circle>().Active))
-            {
-                if (classic)
+                if (EntryPoint.Menu.Item("l33t.stds.drawing.drawDebug").GetValue<bool>())
                 {
-                    Drawing.DrawCircle(
-                        playerPosition, spell.Value.Range,
-                        EntryPoint.Menu.Item("l33t.stds.drawing.draw" + spell.Key).GetValue<Circle>().Color);
-                }
-                else
-                {
-                    Render.Circle.DrawCircle(
-                        playerPosition, spell.Value.Range,
-                        EntryPoint.Menu.Item("l33t.stds.drawing.draw" + spell.Key).GetValue<Circle>().Color);
-                }
-            }
+                    var minions = ObjectCache.GetMinions();
+                    var heros = ObjectCache.GetHeroes();
 
-            if (EntryPoint.Menu.Item("l33t.stds.drawing.drawText").GetValue<bool>())
-            {
+                    Sprite.Begin(SpriteFlags.AlphaBlend);
+
+                    Font.DrawText(
+                        Sprite,
+                        "Close Minion Count: " + (minions != null ? minions.Count(m => m.IsValidTarget(475f)) : 0),
+                        (int) (Drawing.Width * 0.90f), (int) (Drawing.Height * 0.64f), Color.White);
+                    Font.DrawText(
+                        Sprite, "Minion Count: " + (minions != null ? minions.Count() : 0),
+                        (int) (Drawing.Width * 0.90f), (int) (Drawing.Height * 0.625f), Color.White);
+                    Font.DrawText(
+                        Sprite, "Hero Count: " + (heros != null ? heros.Count() : 0), (int) (Drawing.Width * 0.90f),
+                        (int) (Drawing.Height * 0.615f), Color.White);
+                    FontB.DrawText(
+                        Sprite, "Welcome back, " + ObjectManager.Player.Name + ".", (int) (Drawing.Width * 0.90f),
+                        (int) (Drawing.Height * 0.60f), Color.Red);
+
+                    Sprite.End();
+                }
+
+                var classic = EntryPoint.Menu.Item("l33t.stds.drawing.classic").GetValue<bool>();
+                var playerPosition = EntryPoint.Player.Position;
+
+                foreach (var spell in
+                    Mechanics.Spells.Where(
+                        spell =>
+                            EntryPoint.Menu.Item("l33t.stds.drawing.draw" + spell.Key) != null &&
+                            EntryPoint.Menu.Item("l33t.stds.drawing.draw" + spell.Key).GetValue<Circle>().Active))
+                {
+                    if (classic)
+                    {
+                        Drawing.DrawCircle(
+                            playerPosition, spell.Value.Range,
+                            EntryPoint.Menu.Item("l33t.stds.drawing.draw" + spell.Key).GetValue<Circle>().Color);
+                    }
+                    else
+                    {
+                        Render.Circle.DrawCircle(
+                            playerPosition, spell.Value.Range,
+                            EntryPoint.Menu.Item("l33t.stds.drawing.draw" + spell.Key).GetValue<Circle>().Color);
+                    }
+                }
                 foreach (var enemy in ObjectCache.GetHeroes().Where(e => e.IsVisible && !e.IsDead))
                 {
                     var hpBarPos = enemy.HPBarPosition;
@@ -146,141 +146,144 @@ namespace Syndra
                         }
                     }
                 }
-            }
 
-            if (EntryPoint.Menu.Item("l33t.stds.drawing.drawQEC").GetValue<Circle>().Active &&
-                EntryPoint.Menu.Item("l33t.stds.qesettings.qetocursor").GetValue<KeyBind>().Active &&
-                Mechanics.Spells[SpellSlot.Q].IsReady())
-            {
-                var target = TargetSelector.GetTarget(
-                    Mechanics.Spells[SpellSlot.SphereE].Range, TargetSelector.DamageType.Magical);
-                if (target.IsValidTarget())
+                if (EntryPoint.Menu.Item("l33t.stds.drawing.drawQEC").GetValue<Circle>().Active &&
+                    EntryPoint.Menu.Item("l33t.stds.qesettings.qetocursor").GetValue<KeyBind>().Active &&
+                    Mechanics.Spells[SpellSlot.Q].IsReady())
                 {
-                    if (classic)
+                    var target = TargetSelector.GetTarget(
+                        Mechanics.Spells[SpellSlot.SphereE].Range, TargetSelector.DamageType.Magical);
+                    if (target.IsValidTarget())
                     {
-                        Drawing.DrawCircle(
-                            Game.CursorPos, 150f,
-                            (target.Distance(Game.CursorPos, true) <= 22500)
-                                ? System.Drawing.Color.Red
-                                : EntryPoint.Menu.Item("l33t.stds.drawing.drawQEC").GetValue<Circle>().Color);
-                    }
-                    else
-                    {
-                        Render.Circle.DrawCircle(
-                            Game.CursorPos, 150f,
-                            (target.Distance(Game.CursorPos, true) <= 22500)
-                                ? System.Drawing.Color.Red
-                                : EntryPoint.Menu.Item("l33t.stds.drawing.drawQEC").GetValue<Circle>().Color);
-                    }
-                }
-            }
-
-            if (EntryPoint.Menu.Item("l33t.stds.drawing.drawHUD").GetValue<bool>())
-            {
-                if (EntryPoint.Menu.Item("l33t.stds.harass.togglekey").GetValue<KeyBind>().Active)
-                {
-                    Drawing.DrawText(
-                        Drawing.Width * 0.90f, Drawing.Height * 0.68f, System.Drawing.Color.Yellow, "Auto Harass : On");
-                }
-                else
-                {
-                    Drawing.DrawText(
-                        Drawing.Width * 0.90f, Drawing.Height * 0.68f, System.Drawing.Color.DarkRed, "Auto Harass : Off");
-                }
-
-                if (EntryPoint.Menu.Item("l33t.stds.ks.togglekey").GetValue<KeyBind>().Active)
-                {
-                    Drawing.DrawText(
-                        Drawing.Width * 0.90f, Drawing.Height * 0.665f, System.Drawing.Color.Yellow, "Auto KS : On");
-                }
-                else
-                {
-                    Drawing.DrawText(
-                        Drawing.Width * 0.90f, Drawing.Height * 0.665f, System.Drawing.Color.DarkRed, "Auto KS : Off");
-                }
-            }
-
-            // Draw QE MAP
-            if (EntryPoint.Menu.Item("l33t.stds.drawing.drawQEMAP").GetValue<bool>())
-            {
-                var qeTarget = TargetSelector.GetTarget(
-                    Mechanics.Spells[SpellSlot.SphereE].Range, TargetSelector.DamageType.Magical);
-                if (qeTarget.IsValidTarget())
-                {
-                    var sPos =
-                        Prediction.GetPrediction(
-                            qeTarget, Mechanics.Spells[SpellSlot.Q].Delay + Mechanics.Spells[SpellSlot.E].Delay)
-                            .UnitPosition;
-                    var tPos = Mechanics.Spells[SpellSlot.SphereE].Instance.GetPrediction(qeTarget);
-                    if (tPos != null &&
-                        EntryPoint.Player.Distance(sPos, true) > Math.Pow(Mechanics.Spells[SpellSlot.E].Range, 2) &&
-                        (Mechanics.Spells[SpellSlot.E].IsReady() ||
-                         Mechanics.Spells[SpellSlot.E].Instance.Instance.CooldownExpires - Game.Time < 2) &&
-                        Mechanics.Spells[SpellSlot.E].Level > 0)
-                    {
-                        var color = System.Drawing.Color.Red;
-                        var orb = EntryPoint.Player.Position +
-                                  Vector3.Normalize(sPos - EntryPoint.Player.Position) *
-                                  Mechanics.Spells[SpellSlot.E].Range;
-                        Mechanics.Spells[SpellSlot.SphereE].Instance.Delay = Mechanics.Spells[SpellSlot.Q].Delay +
-                                                                             Mechanics.Spells[SpellSlot.E].Delay +
-                                                                             EntryPoint.Player.Distance(orb) /
-                                                                             Mechanics.Spells[SpellSlot.E].Instance
-                                                                                 .Speed;
-                        if (tPos.Hitchance >= HitChance.Medium)
-                        {
-                            color = System.Drawing.Color.Green;
-                        }
-                        if (Mechanics.Spells[SpellSlot.Q].Instance.Instance.ManaCost +
-                            Mechanics.Spells[SpellSlot.E].Instance.Instance.ManaCost > EntryPoint.Player.Mana)
-                        {
-                            color = System.Drawing.Color.DarkBlue;
-                        }
-                        var pos = EntryPoint.Player.Position +
-                                  Vector3.Normalize(tPos.UnitPosition - EntryPoint.Player.Position) * 700;
                         if (classic)
                         {
-                            Drawing.DrawCircle(pos, Mechanics.Spells[SpellSlot.Q].Instance.Width, color);
                             Drawing.DrawCircle(
-                                tPos.UnitPosition, Mechanics.Spells[SpellSlot.Q].Instance.Width / 2, color);
+                                Game.CursorPos, 150f,
+                                (target.Distance(Game.CursorPos, true) <= 22500)
+                                    ? System.Drawing.Color.Red
+                                    : EntryPoint.Menu.Item("l33t.stds.drawing.drawQEC").GetValue<Circle>().Color);
                         }
                         else
                         {
-                            Render.Circle.DrawCircle(pos, Mechanics.Spells[SpellSlot.Q].Instance.Width, color);
                             Render.Circle.DrawCircle(
-                                tPos.UnitPosition, Mechanics.Spells[SpellSlot.Q].Instance.Width / 2, color);
+                                Game.CursorPos, 150f,
+                                (target.Distance(Game.CursorPos, true) <= 22500)
+                                    ? System.Drawing.Color.Red
+                                    : EntryPoint.Menu.Item("l33t.stds.drawing.drawQEC").GetValue<Circle>().Color);
                         }
-                        var sp1 = pos + Vector3.Normalize(EntryPoint.Player.Position - pos) * 100f;
-                        var sp = Drawing.WorldToScreen(sp1);
-                        var ep1 = pos + Vector3.Normalize(pos - EntryPoint.Player.Position) * 592;
-                        var ep = Drawing.WorldToScreen(ep1);
-                        Drawing.DrawLine(sp.X, sp.Y, ep.X, ep.Y, 2, color);
                     }
                 }
-            }
-            if (EntryPoint.Menu.Item("l33t.stds.drawing.drawWMAP").GetValue<bool>() &&
-                Mechanics.Spells[SpellSlot.W].Level > 0)
-            {
-                var color2 = System.Drawing.Color.FromArgb(100, 255, 0, 0);
-                var wTarget =
-                    TargetSelector.GetTarget(
-                        Mechanics.Spells[SpellSlot.W].Range + Mechanics.Spells[SpellSlot.W].Instance.Width,
-                        TargetSelector.DamageType.Magical);
-                if (wTarget.IsValidTarget())
+
+                if (EntryPoint.Menu.Item("l33t.stds.drawing.drawHUD").GetValue<bool>())
                 {
-                    var pos2 = Mechanics.Spells[SpellSlot.W].Instance.GetPrediction(wTarget, true);
-                    if (pos2.Hitchance >= HitChance.High)
+                    if (EntryPoint.Menu.Item("l33t.stds.harass.togglekey").GetValue<KeyBind>().Active)
                     {
-                        color2 = System.Drawing.Color.FromArgb(100, 50, 150, 255);
-                    }
-                    if (classic)
-                    {
-                        Drawing.DrawCircle(pos2.UnitPosition, Mechanics.Spells[SpellSlot.W].Instance.Width, color2);
+                        Drawing.DrawText(
+                            Drawing.Width * 0.90f, Drawing.Height * 0.68f, System.Drawing.Color.Yellow,
+                            "Auto Harass : On");
                     }
                     else
                     {
-                        Render.Circle.DrawCircle(
-                            pos2.UnitPosition, Mechanics.Spells[SpellSlot.W].Instance.Width, color2);
+                        Drawing.DrawText(
+                            Drawing.Width * 0.90f, Drawing.Height * 0.68f, System.Drawing.Color.DarkRed,
+                            "Auto Harass : Off");
+                    }
+
+                    if (EntryPoint.Menu.Item("l33t.stds.ks.togglekey").GetValue<KeyBind>().Active)
+                    {
+                        Drawing.DrawText(
+                            Drawing.Width * 0.90f, Drawing.Height * 0.665f, System.Drawing.Color.Yellow, "Auto KS : On");
+                    }
+                    else
+                    {
+                        Drawing.DrawText(
+                            Drawing.Width * 0.90f, Drawing.Height * 0.665f, System.Drawing.Color.DarkRed,
+                            "Auto KS : Off");
+                    }
+                }
+
+                // Draw QE MAP
+                if (EntryPoint.Menu.Item("l33t.stds.drawing.drawQEMAP").GetValue<bool>())
+                {
+                    var qeTarget = TargetSelector.GetTarget(
+                        Mechanics.Spells[SpellSlot.SphereE].Range, TargetSelector.DamageType.Magical);
+                    if (qeTarget.IsValidTarget())
+                    {
+                        var sPos =
+                            Prediction.GetPrediction(
+                                qeTarget, Mechanics.Spells[SpellSlot.Q].Delay + Mechanics.Spells[SpellSlot.E].Delay)
+                                .UnitPosition;
+                        var tPos = Mechanics.Spells[SpellSlot.SphereE].Instance.GetPrediction(qeTarget);
+                        if (tPos != null &&
+                            EntryPoint.Player.Distance(sPos, true) > Math.Pow(Mechanics.Spells[SpellSlot.E].Range, 2) &&
+                            (Mechanics.Spells[SpellSlot.E].IsReady() ||
+                             Mechanics.Spells[SpellSlot.E].Instance.Instance.CooldownExpires - Game.Time < 2) &&
+                            Mechanics.Spells[SpellSlot.E].Level > 0)
+                        {
+                            var color = System.Drawing.Color.Red;
+                            var orb = EntryPoint.Player.Position +
+                                      Vector3.Normalize(sPos - EntryPoint.Player.Position) *
+                                      Mechanics.Spells[SpellSlot.E].Range;
+                            Mechanics.Spells[SpellSlot.SphereE].Instance.Delay = Mechanics.Spells[SpellSlot.Q].Delay +
+                                                                                 Mechanics.Spells[SpellSlot.E].Delay +
+                                                                                 EntryPoint.Player.Distance(orb) /
+                                                                                 Mechanics.Spells[SpellSlot.E].Instance
+                                                                                     .Speed;
+                            if (tPos.Hitchance >= HitChance.Medium)
+                            {
+                                color = System.Drawing.Color.Green;
+                            }
+                            if (Mechanics.Spells[SpellSlot.Q].Instance.Instance.ManaCost +
+                                Mechanics.Spells[SpellSlot.E].Instance.Instance.ManaCost > EntryPoint.Player.Mana)
+                            {
+                                color = System.Drawing.Color.DarkBlue;
+                            }
+                            var pos = EntryPoint.Player.Position +
+                                      Vector3.Normalize(tPos.UnitPosition - EntryPoint.Player.Position) * 700;
+                            if (classic)
+                            {
+                                Drawing.DrawCircle(pos, Mechanics.Spells[SpellSlot.Q].Instance.Width, color);
+                                Drawing.DrawCircle(
+                                    tPos.UnitPosition, Mechanics.Spells[SpellSlot.Q].Instance.Width / 2, color);
+                            }
+                            else
+                            {
+                                Render.Circle.DrawCircle(pos, Mechanics.Spells[SpellSlot.Q].Instance.Width, color);
+                                Render.Circle.DrawCircle(
+                                    tPos.UnitPosition, Mechanics.Spells[SpellSlot.Q].Instance.Width / 2, color);
+                            }
+                            var sp1 = pos + Vector3.Normalize(EntryPoint.Player.Position - pos) * 100f;
+                            var sp = Drawing.WorldToScreen(sp1);
+                            var ep1 = pos + Vector3.Normalize(pos - EntryPoint.Player.Position) * 592;
+                            var ep = Drawing.WorldToScreen(ep1);
+                            Drawing.DrawLine(sp.X, sp.Y, ep.X, ep.Y, 2, color);
+                        }
+                    }
+                }
+                if (EntryPoint.Menu.Item("l33t.stds.drawing.drawWMAP").GetValue<bool>() &&
+                    Mechanics.Spells[SpellSlot.W].Level > 0)
+                {
+                    var color2 = System.Drawing.Color.FromArgb(100, 255, 0, 0);
+                    var wTarget =
+                        TargetSelector.GetTarget(
+                            Mechanics.Spells[SpellSlot.W].Range + Mechanics.Spells[SpellSlot.W].Instance.Width,
+                            TargetSelector.DamageType.Magical);
+                    if (wTarget.IsValidTarget())
+                    {
+                        var pos2 = Mechanics.Spells[SpellSlot.W].Instance.GetPrediction(wTarget, true);
+                        if (pos2.Hitchance >= HitChance.High)
+                        {
+                            color2 = System.Drawing.Color.FromArgb(100, 50, 150, 255);
+                        }
+                        if (classic)
+                        {
+                            Drawing.DrawCircle(pos2.UnitPosition, Mechanics.Spells[SpellSlot.W].Instance.Width, color2);
+                        }
+                        else
+                        {
+                            Render.Circle.DrawCircle(
+                                pos2.UnitPosition, Mechanics.Spells[SpellSlot.W].Instance.Width, color2);
+                        }
                     }
                 }
             }
