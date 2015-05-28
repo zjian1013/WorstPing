@@ -1,0 +1,39 @@
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="AssemblyInfo.cs" company="LeagueSharp">
+//   Copyright (C) 2015 L33T
+//   
+//   This program is free software: you can redistribute it and/or modify
+//   it under the terms of the GNU General Public License as published by
+//   the Free Software Foundation, either version 3 of the License, or
+//   (at your option) any later version.
+//   
+//   This program is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU General Public License for more details.
+//   
+//   You should have received a copy of the GNU General Public License
+//   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// </copyright>
+// <summary>
+//   AssemblyInfo.cs
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+using System.Reflection;
+using System.Resources;
+using System.Runtime.InteropServices;
+
+[assembly: AssemblyTitle("Ekko the Boy Who Shattered Time")]
+[assembly: AssemblyDescription("Ekko Assembly")]
+[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyCompany("LeagueSharp")]
+[assembly: AssemblyProduct("Ekko the Boy Who Shattered Time")]
+[assembly: AssemblyCopyright("Copyright © L33T 2015")]
+[assembly: AssemblyTrademark("Ekko")]
+[assembly: AssemblyCulture("")]
+[assembly: ComVisible(false)]
+[assembly: Guid("5a43c210-d2df-1337-9deb-b621662a08fd")]
+[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: NeutralResourcesLanguage("en")]
