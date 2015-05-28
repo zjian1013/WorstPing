@@ -280,9 +280,12 @@ namespace Ekko
                 if (dash.IsWall())
                 {
                     var longestDash = Player.Position;
-                    while (!longestDash.IsWall())
+                    for (var i = 1; i < Spells[SpellSlot.E].Range; ++i)
                     {
-                        longestDash = longestDash.Extend(targetPos, 1f);
+                        if (!Player.Position.Extend(targetPos, i).IsWall())
+                        {
+                            longestDash = Player.Position.Extend(targetPos, i);
+                        }
                     }
 
                     if (longestDash.Distance(targetPos) <= 425f)
