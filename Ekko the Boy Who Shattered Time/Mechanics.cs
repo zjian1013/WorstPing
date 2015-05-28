@@ -356,6 +356,12 @@ namespace Ekko
                         }
                     }
 
+                    if (target.Health <= Damages.GetDamageR(target)
+                        && target.Distance(Ekko.EkkoGhost.Position) <= Spells[SpellSlot.R].Range)
+                    {
+                        Spells[SpellSlot.R].Cast();
+                    }
+
                     if (
                         GameObjects.EnemyHeroes.Count(
                             e => e.Distance(Ekko.EkkoGhost.Position) <= Spells[SpellSlot.Q].Range)
@@ -367,8 +373,8 @@ namespace Ekko
                     if (Ekko.Menu.Item("l33t.ekko.combo.rbackenable").GetValue<bool>()
                         && Ekko.OldHealthPercent.ContainsKey(Ekko.GameTime - 4000))
                     {
-                        if (Player.HealthPercent - Ekko.OldHealthPercent[Ekko.GameTime - 4000]
-                            > Ekko.Menu.Item("l33t.ekko.combo.rback").GetValue<Slider>().Value)
+                        if (Ekko.OldHealthPercent[Ekko.GameTime - 4000] - Player.HealthPercent
+                            <= Ekko.Menu.Item("l33t.ekko.combo.rback").GetValue<Slider>().Value)
                         {
                             Spells[SpellSlot.R].Cast();
                         }
