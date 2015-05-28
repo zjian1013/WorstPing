@@ -250,10 +250,10 @@ namespace Ekko
         /// <summary>
         ///     Processes combo.
         /// </summary>
-        /// <param name="ultimate">
-        ///     The ultimate.
+        /// <param name="harass">
+        ///     Indicates which mode.
         /// </param>
-        public static void ProcessSpells(bool ultimate = false)
+        public static void ProcessSpells(bool harass = false)
         {
             var target = TargetSelector.GetTarget(float.MaxValue, TargetSelector.DamageType.Magical);
             if (!target.IsValidTarget())
@@ -265,7 +265,7 @@ namespace Ekko
                 Prediction.GetPrediction(target, Spells[SpellSlot.Q].Delay, target.BoundingRadius, target.MoveSpeed)
                     .UnitPosition;
 
-            if (Spells[SpellSlot.Q].IsReady() && Ekko.Menu.Item("l33t.ekko.combo.q").GetValue<bool>()
+            if (Spells[SpellSlot.Q].IsReady() && Ekko.Menu.Item(harass ? "l33t.ekko.harass.q" : "l33t.ekko.combo.q").GetValue<bool>()
                 && targetPos.Distance(Player.Position) <= Spells[SpellSlot.Q].Range)
             {
                 var pred = Spells[SpellSlot.Q].GetPrediction(target).CastPosition;
@@ -273,7 +273,7 @@ namespace Ekko
                 lastQCastTick = Ekko.GameTime;
             }
 
-            if (Spells[SpellSlot.E].IsReady() && Ekko.Menu.Item("l33t.ekko.combo.e").GetValue<bool>()
+            if (Spells[SpellSlot.E].IsReady() && Ekko.Menu.Item(harass ? "l33t.ekko.harass.e" : "l33t.ekko.combo.e").GetValue<bool>()
                 && targetPos.Distance(Player.Position) <= Spells[SpellSlot.E].Range + 425f)
             {
                 var dash = Player.Position.Extend(targetPos, Spells[SpellSlot.E].Range);
@@ -302,7 +302,7 @@ namespace Ekko
                 }
             }
 
-            if (Spells[SpellSlot.W].IsReady() && Ekko.Menu.Item("l33t.ekko.combo.w").GetValue<bool>()
+            if (Spells[SpellSlot.W].IsReady() && Ekko.Menu.Item(harass ? "l33t.ekko.harass.w" : "l33t.ekko.combo.w").GetValue<bool>()
                 && Player.Distance(targetPos) <= Spells[SpellSlot.Q].Range - Player.AttackRange
                 && Ekko.GameTime - lastQCastTick < 7000 + 1000 * Spells[SpellSlot.Q].Level - 1)
             {
@@ -319,7 +319,7 @@ namespace Ekko
                 }
             }
 
-            if (ultimate)
+            if (!harass)
             {
                 if (Spells[SpellSlot.R].IsReady() && Ekko.Menu.Item("l33t.ekko.combo.r").GetValue<bool>()
                     && Ekko.EkkoGhost != null && Ekko.EkkoGhost.IsValid)

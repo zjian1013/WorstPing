@@ -208,14 +208,14 @@ namespace Ekko
             switch (Ekko.Orbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
-                    Mechanics.ProcessSpells(true);
+                    Mechanics.ProcessSpells();
                     break;
                 case Orbwalking.OrbwalkingMode.LastHit:
                 case Orbwalking.OrbwalkingMode.LaneClear:
                     Mechanics.ProcessFarm();
                     break;
                 case Orbwalking.OrbwalkingMode.Mixed:
-                    Mechanics.ProcessSpells();
+                    Mechanics.ProcessSpells(true);
                     break;
                     case Orbwalking.OrbwalkingMode.None:
                     if (Ekko.Menu.Item("l33t.ekko.flee.enable").GetValue<bool>()
