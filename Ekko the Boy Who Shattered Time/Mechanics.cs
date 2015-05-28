@@ -217,7 +217,8 @@ namespace Ekko
         public static void ProcessFlee()
         {
             var targets =
-                GameObjects.EnemyHeroes.Where(h => h.Distance(Player.Position) <= Spells[SpellSlot.Q].Range).ToList();
+                GameObjects.EnemyHeroes.Where(
+                    h => h.IsValidTarget() && h.Distance(Player.Position) <= Spells[SpellSlot.Q].Range).ToList();
             if (targets.Any())
             {
                 if (Spells[SpellSlot.Q].IsReady() && Ekko.Menu.Item("l33t.ekko.flee.q").GetValue<bool>())
@@ -270,7 +271,7 @@ namespace Ekko
         /// </param>
         public static void ProcessSpells(bool harass = false)
         {
-            var target = TargetSelector.GetTarget(float.MaxValue, TargetSelector.DamageType.Magical);
+            var target = TargetSelector.GetTarget(Spells[SpellSlot.W].Range, TargetSelector.DamageType.Magical);
             if (!target.IsValidTarget())
             {
                 return;
