@@ -40,7 +40,7 @@ namespace Ekko
         /// <summary>
         ///     The Delay.
         /// </summary>
-        private const int Delay = 0;
+        private const int Delay = 50;
 
         /// <summary>
         ///     The minimum distance.
@@ -150,12 +150,12 @@ namespace Ekko
             bool useFixedDistance = true, 
             bool randomizeMinDistance = true)
         {
-            if (Utils.GameTimeTickCount - lastMoveCommandT < Delay && !overrideTimer)
+            if (Ekko.GameTime - lastMoveCommandT < Delay && !overrideTimer)
             {
                 return;
             }
 
-            lastMoveCommandT = Utils.GameTimeTickCount;
+            lastMoveCommandT = Ekko.GameTime;
 
             if (Player.ServerPosition.Distance(position, true) < holdAreaRadius * holdAreaRadius)
             {
