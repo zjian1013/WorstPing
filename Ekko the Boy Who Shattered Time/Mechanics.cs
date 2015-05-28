@@ -166,10 +166,10 @@ namespace Ekko
                     var farmLocation =
                         MinionManager.GetBestLineFarmLocation(
                             GameObjects.EnemyMinions.Where(
-                                m => m.Distance(Player.Position) <= Spells[SpellSlot.Q].Range)
+                                m => m.IsValidTarget() && m.Distance(Player.Position) <= Spells[SpellSlot.Q].Range)
                                 .Select(m => m.Position.To2D())
-                                .ToList(), 
-                            Spells[SpellSlot.Q].Width, 
+                                .ToList(),
+                            Spells[SpellSlot.Q].Width,
                             Spells[SpellSlot.Q].Range);
 
                     if (farmLocation.MinionsHit >= Ekko.Menu.Item("l33t.ekko.farming.lcqh").GetValue<Slider>().Value)
@@ -179,16 +179,31 @@ namespace Ekko
                 }
                 else if (Ekko.Menu.Item("l33t.ekko.farming.lhq").GetValue<bool>())
                 {
-                    var farmLocation =
+                    /*var farmLocation =
                         GetBestLineFarmLocation(
                             GameObjects.EnemyMinions.Where(
-                                m => m.Distance(Player.Position) <= Spells[SpellSlot.Q].Range).ToList(), 
-                            Spells[SpellSlot.Q].Width, 
+                                m => m.IsValidTarget() && m.Distance(Player.Position) <= Spells[SpellSlot.Q].Range)
+                                .ToList(),
+                            Spells[SpellSlot.Q].Width,
                             Spells[SpellSlot.Q].Range);
 
                     if (farmLocation.MinionsHit >= Ekko.Menu.Item("l33t.ekko.farming.lhqh").GetValue<Slider>().Value
                         && farmLocation.Minions.Count(m => m.Health <= Damages.GetDamageQ(m))
                         >= Ekko.Menu.Item("l33t.ekko.farming.lhqh").GetValue<Slider>().Value)
+                    {
+                        Spells[SpellSlot.Q].Cast(farmLocation.Position);
+                    }*/
+
+                    var farmLocation =
+                        MinionManager.GetBestLineFarmLocation(
+                            GameObjects.EnemyMinions.Where(
+                                m => m.IsValidTarget() && m.Distance(Player.Position) <= Spells[SpellSlot.Q].Range)
+                                .Select(m => m.Position.To2D())
+                                .ToList(),
+                            Spells[SpellSlot.Q].Width,
+                            Spells[SpellSlot.Q].Range);
+
+                    if (farmLocation.MinionsHit >= Ekko.Menu.Item("l33t.ekko.farming.lcqh").GetValue<Slider>().Value)
                     {
                         Spells[SpellSlot.Q].Cast(farmLocation.Position);
                     }
@@ -266,15 +281,18 @@ namespace Ekko
                     .UnitPosition;
 
             if (Spells[SpellSlot.Q].IsReady() && Ekko.Menu.Item(harass ? "l33t.ekko.harass.q" : "l33t.ekko.combo.q").GetValue<bool>()
-                && targetPos.Distance(Player.Position) <= Spells[SpellSlot.Q].Range)
+                && target.Distance(Player.Position) <= Spells[SpellSlot.Q].Range)
             {
-                var pred = Spells[SpellSlot.Q].GetPrediction(target).CastPosition;
-                Spells[SpellSlot.Q].Cast(pred + (pred - targetPos));
-                lastQCastTick = Ekko.GameTime;
+                var pred = Spells[SpellSlot.Q].GetPrediction(target);
+                if (!pred.CollisionObjects.Any(c => c.Name.Contains("Yasuo") || c.Name.Contains("yasuo")))
+                {
+                    Spells[SpellSlot.Q].Cast(pred.CastPosition);
+                    lastQCastTick = Ekko.GameTime;
+                }
             }
 
             if (Spells[SpellSlot.E].IsReady() && Ekko.Menu.Item(harass ? "l33t.ekko.harass.e" : "l33t.ekko.combo.e").GetValue<bool>()
-                && targetPos.Distance(Player.Position) <= Spells[SpellSlot.E].Range + 425f)
+                && target.Distance(Player.Position) <= Spells[SpellSlot.E].Range + 425f)
             {
                 var dash = Player.Position.Extend(targetPos, Spells[SpellSlot.E].Range);
                 if (dash.IsWall())
@@ -303,7 +321,7 @@ namespace Ekko
             }
 
             if (Spells[SpellSlot.W].IsReady() && Ekko.Menu.Item(harass ? "l33t.ekko.harass.w" : "l33t.ekko.combo.w").GetValue<bool>()
-                && Player.Distance(targetPos) <= Spells[SpellSlot.Q].Range - Player.AttackRange
+                && Player.Distance(target) <= Spells[SpellSlot.Q].Range - Player.AttackRange
                 && Ekko.GameTime - lastQCastTick < 7000 + 1000 * Spells[SpellSlot.Q].Level - 1)
             {
                 var targetPosition =
@@ -398,6 +416,8 @@ namespace Ekko
                         tracking.Add(
                             minionPositions[j], 
                             (minionPositions[j].Position.To2D() + minionPositions[i].Position.To2D()) / 2);
+
+                        // TODO: Fix collection error.
                     }
                 }
             }

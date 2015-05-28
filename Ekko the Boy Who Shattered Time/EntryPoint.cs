@@ -70,7 +70,7 @@ namespace Ekko
                 combo.AddItem(
                     new MenuItem("l33t.ekko.combo.rifhit", "Use R if hit enemies").SetValue(new Slider(3, 1, 5)));
                 combo.AddItem(
-                    new MenuItem("l33t.ekko.combo.rifhit", "Use R if enemy is killable by burst").SetValue(true));
+                    new MenuItem("l33t.ekko.combo.rkill", "Use R if enemy is killable by burst").SetValue(true));
             }
 
             var harass = menu.AddSubMenu(new Menu("Harass", "l33t.ekko.harass"));

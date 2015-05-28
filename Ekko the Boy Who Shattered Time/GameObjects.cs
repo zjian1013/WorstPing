@@ -78,7 +78,7 @@ namespace Ekko
         {
             get
             {
-                return Heroes.Where(h => h.IsAlly);
+                return Heroes.Where(h => h != null && h.IsValid && h.IsAlly);
             }
         }
 
@@ -89,7 +89,7 @@ namespace Ekko
         {
             get
             {
-                return Minions.Where(h => h.IsAlly);
+                return Minions.Where(h => h != null && h.IsValid && h.IsAlly);
             }
         }
 
@@ -100,7 +100,7 @@ namespace Ekko
         {
             get
             {
-                return Heroes.Where(h => h.IsEnemy);
+                return Heroes.Where(h => h != null && h.IsValid && h.IsEnemy);
             }
         }
 
@@ -111,7 +111,7 @@ namespace Ekko
         {
             get
             {
-                return Minions.Where(h => h.IsEnemy);
+                return Minions.Where(h => h != null && h.IsValid && h.IsEnemy);
             }
         }
 
