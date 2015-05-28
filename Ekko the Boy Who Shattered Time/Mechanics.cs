@@ -271,7 +271,7 @@ namespace Ekko
         /// </param>
         public static void ProcessSpells(bool harass = false)
         {
-            var target = TargetSelector.GetTarget(Spells[SpellSlot.W].Range, TargetSelector.DamageType.Magical);
+            var target = TargetSelector.GetTarget(Spells[SpellSlot.Q].Range, TargetSelector.DamageType.Magical);
             if (!target.IsValidTarget())
             {
                 return;
