@@ -203,7 +203,7 @@ namespace Ekko
                             Spells[SpellSlot.Q].Width,
                             Spells[SpellSlot.Q].Range);
 
-                    if (farmLocation.MinionsHit >= Ekko.Menu.Item("l33t.ekko.farming.lcqh").GetValue<Slider>().Value)
+                    if (farmLocation.MinionsHit >= Ekko.Menu.Item("l33t.ekko.farming.lhqh").GetValue<Slider>().Value)
                     {
                         Spells[SpellSlot.Q].Cast(farmLocation.Position);
                     }
