@@ -80,6 +80,15 @@ namespace Ekko
                 harass.AddItem(new MenuItem("l33t.ekko.harass.e", "Use E")).SetValue(true);
             }
 
+            var ks = menu.AddSubMenu(new Menu("Kill Steal", "l33t.ekko.ks"));
+            {
+                ks.AddItem(new MenuItem("l33t.ekko.ks.use", "Use Killsteal")).SetValue(true);
+                ks.AddItem(new MenuItem("l33t.ekko.ks.q", "Use Q")).SetValue(true);
+                ks.AddItem(new MenuItem("l33t.ekko.ks.e", "Use E")).SetValue(true);
+                ks.AddItem(new MenuItem("l33t.ekko.ks.r", "Use R")).SetValue(true);
+                ks.AddItem(new MenuItem("l33t.ekko.ks.mr", "Min Enemies to kill with R")).SetValue(new Slider(3, 1, 5));
+            }
+
             var flee = menu.AddSubMenu(new Menu("Flee", "l33t.ekko.flee"));
             {
                 flee.AddItem(new MenuItem("l33t.ekko.flee.enable", "Enable")).SetValue(true);
@@ -189,6 +198,11 @@ namespace Ekko
                 {
                     Ekko.OldHealthPercent.Remove(contents.Key);
                 }
+            }
+
+            if (Ekko.Menu.Item("l33t.ekko.ks.use").GetValue<bool>())
+            {
+                Mechanics.ProcessKillsteal();
             }
 
             switch (Ekko.Orbwalker.ActiveMode)

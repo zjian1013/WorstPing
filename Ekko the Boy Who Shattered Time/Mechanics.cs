@@ -81,6 +81,79 @@ namespace Ekko
         #region Public Methods and Operators
 
         /// <summary>
+        ///     Process <c>Killsteal</c>.
+        /// </summary>
+        public static void ProcessKillsteal()
+        {
+            var lowestTarget = GameObjects.EnemyHeroes.OrderBy(h => h.Health).FirstOrDefault();
+            if (!lowestTarget.IsValidTarget() || lowestTarget == null)
+            {
+                return;
+            }
+
+            if (Spells[SpellSlot.Q].IsReady() && Ekko.Menu.Item("l33t.ekko.ks.q").GetValue<bool>() && lowestTarget.Distance(Player.Position) <= Spells[SpellSlot.Q].Range && lowestTarget.Health <= Damages.GetDamageQ(lowestTarget))
+            {
+                var pred = Spells[SpellSlot.Q].GetPrediction(lowestTarget).CastPosition;
+                Spells[SpellSlot.Q].Cast(
+                    pred
+                    + (pred
+                       - Prediction.GetPrediction(
+                           lowestTarget,
+                           Spells[SpellSlot.Q].Delay,
+                           lowestTarget.BoundingRadius,
+                           lowestTarget.MoveSpeed).UnitPosition));
+            }
+
+            if (Spells[SpellSlot.E].IsReady() && Ekko.Menu.Item("l33t.ekko.ks.e").GetValue<bool>()
+                && lowestTarget.Distance(Player.Position) <= Spells[SpellSlot.E].Range + 425f
+                && lowestTarget.Health <= Player.GetAutoAttackDamage(lowestTarget) + Damages.GetDamageE(lowestTarget))
+            {
+                var targetPos =
+                    Prediction.GetPrediction(lowestTarget, Spells[SpellSlot.Q].Delay, lowestTarget.BoundingRadius, lowestTarget.MoveSpeed)
+                        .UnitPosition;
+
+                var dash = Player.Position.Extend(targetPos, Spells[SpellSlot.E].Range);
+                if (dash.IsWall())
+                {
+                    var longestDash = Player.Position;
+                    while (!longestDash.IsWall())
+                    {
+                        longestDash = longestDash.Extend(targetPos, 1f);
+                    }
+
+                    if (longestDash.Distance(targetPos) <= 425f)
+                    {
+                        Spells[SpellSlot.E].Cast(dash);
+                    }
+                }
+                else
+                {
+                    if (dash.Distance(targetPos) <= 425f)
+                    {
+                        Spells[SpellSlot.E].Cast(dash);
+                    }
+                }
+            }
+
+            if (Spells[SpellSlot.R].IsReady() && Ekko.EkkoGhost != null && Ekko.EkkoGhost.IsValid && Ekko.Menu.Item("l33t.ekko.ks.r").GetValue<bool>())
+            {
+                var enemies =
+                    GameObjects.EnemyHeroes.Where(e => e.Distance(Ekko.EkkoGhost.Position) <= Spells[SpellSlot.R].Range).ToList();
+                if (enemies.Any())
+                {
+                    if (enemies.Count() >= Ekko.Menu.Item("l33t.ekko.ks.mr").GetValue<Slider>().Value)
+                    {
+                        var count = enemies.Count(e => e.Health <= Damages.GetDamageR(e));
+                        if (count >= Ekko.Menu.Item("l33t.ekko.ks.mr").GetValue<Slider>().Value)
+                        {
+                            Spells[SpellSlot.R].Cast();
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         ///     Process the farming.
         /// </summary>
         public static void ProcessFarm()
