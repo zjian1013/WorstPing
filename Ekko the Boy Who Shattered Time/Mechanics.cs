@@ -422,9 +422,10 @@ namespace Ekko
                 if (Spells[SpellSlot.R].IsReady() && Ekko.Menu.Item("l33t.ekko.combo.r").GetValue<bool>()
                     && Ekko.EkkoGhost != null && Ekko.EkkoGhost.IsValid)
                 {
+                    var ultimateDelay = Prediction.GetPrediction(target, 0.75f, target.BoundingRadius, target.MoveSpeed).UnitPosition;
                     if (Ekko.Menu.Item("l33t.ekko.combo.rkill").GetValue<bool>())
                     {
-                        if (target.Distance(Ekko.EkkoGhost.Position) <= Spells[SpellSlot.R].Range)
+                        if (ultimateDelay.Distance(Ekko.EkkoGhost.Position) <= Spells[SpellSlot.R].Range)
                         {
                             var damage = Damages.GetDamageE(target) + Damages.GetDamageQ(target)
                                          + Damages.GetDamageR(target);
@@ -436,7 +437,7 @@ namespace Ekko
                     }
 
                     if (target.Health <= Damages.GetDamageR(target)
-                        && target.Distance(Ekko.EkkoGhost.Position) <= Spells[SpellSlot.R].Range)
+                        && ultimateDelay.Distance(Ekko.EkkoGhost.Position) <= Spells[SpellSlot.R].Range)
                     {
                         Spells[SpellSlot.R].Cast();
                     }
