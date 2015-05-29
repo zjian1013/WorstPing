@@ -179,7 +179,7 @@ namespace Ekko
                 }
                 else if (Ekko.Menu.Item("l33t.ekko.farming.lhq").GetValue<bool>())
                 {
-                    /*var farmLocation =
+                    var farmLocation =
                         GetBestLineFarmLocation(
                             GameObjects.EnemyMinions.Where(
                                 m => m.IsValidTarget() && m.Distance(Player.Position) <= Spells[SpellSlot.Q].Range)
@@ -190,20 +190,6 @@ namespace Ekko
                     if (farmLocation.MinionsHit >= Ekko.Menu.Item("l33t.ekko.farming.lhqh").GetValue<Slider>().Value
                         && farmLocation.Minions.Count(m => m.Health <= Damages.GetDamageQ(m))
                         >= Ekko.Menu.Item("l33t.ekko.farming.lhqh").GetValue<Slider>().Value)
-                    {
-                        Spells[SpellSlot.Q].Cast(farmLocation.Position);
-                    }*/
-
-                    var farmLocation =
-                        MinionManager.GetBestLineFarmLocation(
-                            GameObjects.EnemyMinions.Where(
-                                m => m.IsValidTarget() && m.Distance(Player.Position) <= Spells[SpellSlot.Q].Range)
-                                .Select(m => m.Position.To2D())
-                                .ToList(),
-                            Spells[SpellSlot.Q].Width,
-                            Spells[SpellSlot.Q].Range);
-
-                    if (farmLocation.MinionsHit >= Ekko.Menu.Item("l33t.ekko.farming.lhqh").GetValue<Slider>().Value)
                     {
                         Spells[SpellSlot.Q].Cast(farmLocation.Position);
                     }
@@ -282,7 +268,7 @@ namespace Ekko
                     .UnitPosition;
 
             if (Spells[SpellSlot.Q].IsReady() && Ekko.Menu.Item(harass ? "l33t.ekko.harass.q" : "l33t.ekko.combo.q").GetValue<bool>()
-                && target.Distance(Player.Position) <= Spells[SpellSlot.Q].Range)
+                && targetPos.Distance(Player.Position) <= Spells[SpellSlot.Q].Range)
             {
                 var pred = Spells[SpellSlot.Q].GetPrediction(target);
                 if (!pred.CollisionObjects.Any(c => c.Name.Contains("Yasuo") || c.Name.Contains("yasuo")))
@@ -293,7 +279,7 @@ namespace Ekko
             }
 
             if (Spells[SpellSlot.E].IsReady() && Ekko.Menu.Item(harass ? "l33t.ekko.harass.e" : "l33t.ekko.combo.e").GetValue<bool>()
-                && target.Distance(Player.Position) <= Spells[SpellSlot.E].Range + 425f)
+                && targetPos.Distance(Player.Position) <= Spells[SpellSlot.E].Range + 425f)
             {
                 var dash = Player.Position.Extend(targetPos, Spells[SpellSlot.E].Range);
                 if (dash.IsWall())
@@ -322,7 +308,7 @@ namespace Ekko
             }
 
             if (Spells[SpellSlot.W].IsReady() && Ekko.Menu.Item(harass ? "l33t.ekko.harass.w" : "l33t.ekko.combo.w").GetValue<bool>()
-                && Player.Distance(target) <= Spells[SpellSlot.Q].Range - Player.AttackRange
+                && Player.Distance(targetPos) <= Spells[SpellSlot.Q].Range - Player.AttackRange
                 && Ekko.GameTime - lastQCastTick < 7000 + 1000 * Spells[SpellSlot.Q].Level - 1)
             {
                 var targetPosition =
@@ -390,7 +376,7 @@ namespace Ekko
         /// <summary>
         ///     Calculates and gets the best line farming location.
         /// </summary>
-        /// <param name="minionPositions">
+        /// <param name="minionsList">
         ///     The Minions
         /// </param>
         /// <param name="width">
@@ -402,55 +388,54 @@ namespace Ekko
         /// <returns>
         ///     The Farming Location Container.
         /// </returns>
-        private static FarmingLocation GetBestLineFarmLocation(
-            IReadOnlyList<Obj_AI_Minion> minionPositions, 
-            float width, 
-            float range)
+        private static FarmingLocation GetBestLineFarmLocation(IReadOnlyList<Obj_AI_Minion> minionsList, float width, float range)
         {
             var result = new Vector2();
             var minionCount = 0;
             var startPos = ObjectManager.Player.ServerPosition.To2D();
-            var minionsList = new List<Obj_AI_Minion>();
-            var tracking = minionPositions.ToDictionary(minion => minion, minion => minion.Position.To2D());
+            var minions =
+                minionsList.ToDictionary<Obj_AI_Minion, Obj_AI_Minion, IDictionary<int, Vector2>>(
+                    minion => minion,
+                    minion => new Dictionary<int, Vector2> { { 0, minion.Position.To2D() } });
+            var minionsCollection = new List<Obj_AI_Minion>();
 
-            var max = minionPositions.Count;
+            var max = minionsList.Count;
             for (var i = 0; i < max; i++)
             {
                 for (var j = 0; j < max; j++)
                 {
-                    if (minionPositions[j].Position.To2D() != minionPositions[i].Position.To2D())
+                    if (minionsList[j].Position.To2D() != minionsList[i].Position.To2D())
                     {
-                        tracking.Add(
-                            minionPositions[j], 
-                            (minionPositions[j].Position.To2D() + minionPositions[i].Position.To2D()) / 2);
-
-                        // TODO: Fix collection error.
+                        minions[minionsList[j]].Add(
+                            minions[minionsList[j]].Count,
+                            (minionsList[j].Position.To2D() + minionsList[i].Position.To2D()) / 2);
                     }
                 }
             }
 
-            foreach (var pos in tracking)
+            foreach (var minion in minions)
             {
-                if (pos.Value.Distance(startPos, true) <= range * range)
+                foreach (var pos in minion.Value.Values)
                 {
-                    var endPos = startPos + range * (pos.Value - startPos).Normalized();
-
-                    var count =
-                        tracking.Count(pos2 => pos2.Value.Distance(startPos, endPos, true, true) <= width * width);
-
-                    if (count >= minionCount)
+                    if (pos.Distance(startPos, true) <= range * range)
                     {
-                        result = endPos;
-                        minionCount = count;
-                        minionsList =
-                            tracking.Where(pos2 => pos2.Value.Distance(startPos, endPos, true, true) <= width * width)
-                                .Select(m => m.Key)
-                                .ToList();
+                        var endPos = startPos + range * (pos - startPos).Normalized();
+
+                        var minionsCount =
+                            minionsList.Where(
+                                pos2 => pos2.Position.To2D().Distance(startPos, endPos, true, true) <= width * width).ToList();
+
+                        if (minionsCount.Count() >= minionCount)
+                        {
+                            result = endPos;
+                            minionCount = minionsCount.Count();
+                            minionsCollection = minionsCount;
+                        }
                     }
                 }
             }
 
-            return new FarmingLocation(result, minionCount, minionsList);
+            return new FarmingLocation(result, minionCount, minionsCollection);
         }
 
         #endregion

@@ -166,7 +166,7 @@ namespace Ekko
         #endregion
 
         #region Methods
-
+ 
         /// <summary>
         ///     OnUpdate event.
         /// </summary>
@@ -194,7 +194,7 @@ namespace Ekko
                     Ekko.OldHealthPercent.Add(Ekko.GameTime, Ekko.Player.Health);
                 }
 
-                foreach (var contents in Ekko.OldHealthPercent.Where(contents => contents.Key + 4000 < Ekko.GameTime))
+                foreach (var contents in Ekko.OldHealthPercent.ToArray().Where(contents => contents.Key + 4000 < Ekko.GameTime))
                 {
                     Ekko.OldHealthPercent.Remove(contents.Key);
                 }
@@ -217,7 +217,7 @@ namespace Ekko
                 case Orbwalking.OrbwalkingMode.Mixed:
                     Mechanics.ProcessSpells(true);
                     break;
-                    case Orbwalking.OrbwalkingMode.None:
+                case Orbwalking.OrbwalkingMode.None:
                     if (Ekko.Menu.Item("l33t.ekko.flee.enable").GetValue<bool>()
                         && Ekko.Menu.Item("l33t.ekko.flee.key").GetValue<KeyBind>().Active)
                     {
