@@ -447,7 +447,7 @@ namespace Ekko
                         GameObjects.EnemyHeroes.Count(
                             e =>
                             Prediction.GetPrediction(e, 1f, e.BoundingRadius, e.MoveSpeed)
-                                .UnitPosition.Distance(Ekko.EkkoGhost.Position) <= Spells[SpellSlot.Q].Range)
+                                .UnitPosition.Distance(Ekko.EkkoGhost.Position) <= Spells[SpellSlot.R].Range)
                         >= Ekko.Menu.Item("l33t.ekko.combo.rifhit").GetValue<Slider>().Value)
                     {
                         Spells[SpellSlot.R].Cast();
