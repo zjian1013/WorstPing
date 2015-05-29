@@ -299,14 +299,14 @@ namespace Ekko
                     }
 
                     if (Ekko.EkkoField.Position.Distance(Player.Position) <= 375f + Spells[SpellSlot.E].Range
-                        && target.Distance(Ekko.EkkoField.Position) <= 375f)
+                        && targetPos.Distance(Ekko.EkkoField.Position) <= 375f)
                     {
                         Spells[SpellSlot.E].Cast(Ekko.EkkoField.Position);
                     }
 
                     if (Ekko.EkkoField.Position.Distance(Player.Position) <= 375f + Spells[SpellSlot.E].Range)
                     {
-                        if (target.Distance(Player.Position.Extend(Ekko.EkkoField.Position, Spells[SpellSlot.E].Range))
+                        if (targetPos.Distance(Player.Position.Extend(Ekko.EkkoField.Position, Spells[SpellSlot.E].Range))
                             <= 425f)
                         {
                             Spells[SpellSlot.E].Cast(Ekko.EkkoField.Position);
@@ -316,15 +316,6 @@ namespace Ekko
 
                 if (targetPos.Distance(Player.Position) <= Spells[SpellSlot.E].Range + 425f)
                 {
-                    if (Ekko.EkkoField != null && Ekko.EkkoField.IsValid)
-                    {
-                        if (targetPos.Distance(Ekko.EkkoField.Position) <= 375f
-                            && Ekko.EkkoField.Position.Distance(Player.Position) <= Spells[SpellSlot.E].Range + 425f)
-                        {
-                            Spells[SpellSlot.E].Cast(Ekko.EkkoField.Position);
-                        }
-                    }
-
                     var dash = Player.Position.Extend(targetPos, Spells[SpellSlot.E].Range);
                     if (dash.IsWall())
                     {
