@@ -282,7 +282,7 @@ namespace Ekko
                 var pred = Spells[SpellSlot.Q].GetPrediction(target);
                 if (!pred.CollisionObjects.Contains(ObjectManager.Player))
                 {
-                    if (pred.Hitchance >= HitChance.High)
+                    if (pred.Hitchance >= HitChance.Medium)
                     {
                         Spells[SpellSlot.Q].Cast(pred.CastPosition);
                         lastQCastTick = Ekko.GameTime;
