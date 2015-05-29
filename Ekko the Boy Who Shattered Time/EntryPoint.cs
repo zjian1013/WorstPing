@@ -175,17 +175,11 @@ namespace Ekko
         /// </param>
         private static void OnUpdate(EventArgs args)
         {
-            if (Ekko.Menu.Item("l33t.ekko.skinchanger.enable").GetValue<bool>())
-            {
-                if (
-                    !Ekko.Player.BaseSkinId.Equals(
-                        Ekko.Menu.Item("l33t.ekko.skinchanger.list").GetValue<StringList>().SelectedIndex))
-                {
-                    Ekko.Player.SetSkin(
-                        Ekko.Player.BaseSkinName,
-                        Ekko.Menu.Item("l33t.ekko.skinchanger.list").GetValue<StringList>().SelectedIndex);
-                }
-            }
+            Ekko.Player.SetSkin(
+                Ekko.Player.BaseSkinName,
+                Ekko.Menu.Item("l33t.ekko.skinchanger.enable").GetValue<bool>()
+                    ? Ekko.Menu.Item("l33t.ekko.skinchanger.list").GetValue<StringList>().SelectedIndex
+                    : Ekko.Player.BaseSkinId);
 
             if (Ekko.Spells[SpellSlot.R].IsReady() && Ekko.Menu.Item("l33t.ekko.combo.rbackenable").GetValue<bool>())
             {
