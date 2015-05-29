@@ -199,6 +199,51 @@ namespace Ekko
                 Mechanics.ProcessKillsteal();
             }
 
+            Orbwalking.AfterAttack += (unit, target) =>
+                {
+                    if (Ekko.Orbwalker.ActiveMode.Equals(Orbwalking.OrbwalkingMode.LaneClear) && Ekko.GameTime - LastAfterAttackTick > Ekko.Player.AttackDelay * 1000)
+                    {
+                        var targetBase = target as Obj_AI_Minion;
+                        if (unit.IsMe && targetBase != null && Ekko.Spells[SpellSlot.E].IsReady())
+                        {
+                            if (!targetBase.BaseSkinName.Contains("minion")
+                                && !targetBase.BaseSkinName.Contains("Minion")
+                                && !targetBase.BaseSkinName.Contains("ward")
+                                && !targetBase.BaseSkinName.Contains("Ward")
+                                && !targetBase.BaseSkinName.Contains("trinket")
+                                && !targetBase.BaseSkinName.Contains("Trinket"))
+                            {
+                                if (targetBase.Health > Ekko.Player.GetAutoAttackDamage(targetBase)
+                                    || (targetBase.GetAutoAttackDamage(Ekko.Player) < Ekko.Player.Health
+                                        && targetBase.Health < Ekko.Player.GetAutoAttackDamage(targetBase)))
+                                {
+                                    var dashPosition = targetBase.Position;
+                                    for (var i = 0; i <= Ekko.Spells[SpellSlot.E].Range; ++i)
+                                    {
+                                        var range = targetBase.Position.Extend(Ekko.Player.Position, i);
+                                        if (range.Distance(targetBase.Position) < Ekko.Player.AttackRange)
+                                        {
+                                            dashPosition = range;
+                                        }
+                                    }
+
+                                    if (dashPosition.IsValid())
+                                    {
+                                        Utility.DelayAction.Add(
+                                            (int)(Ekko.Spells[SpellSlot.E].Delay * 1000) + 500 + Game.Ping / 2,
+                                            () =>
+                                                {
+                                                    Ekko.Player.IssueOrder(GameObjectOrder.AttackUnit, target);
+                                                });
+                                        Ekko.Spells[SpellSlot.E].Cast(dashPosition);
+                                    }
+                                }
+                            }
+                        }
+
+                        LastAfterAttackTick = Ekko.GameTime;
+                    }
+                };
             switch (Ekko.Orbwalker.ActiveMode)
             {
                 case Orbwalking.OrbwalkingMode.Combo:
@@ -224,5 +269,7 @@ namespace Ekko
         }
 
         #endregion
+
+        public static int LastAfterAttackTick { get; set; }
     }
 }
