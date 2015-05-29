@@ -91,26 +91,31 @@ namespace Ekko
                 return;
             }
 
-            if (Spells[SpellSlot.Q].IsReady() && Ekko.Menu.Item("l33t.ekko.ks.q").GetValue<bool>() && lowestTarget.Distance(Player.Position) <= Spells[SpellSlot.Q].Range && lowestTarget.Health <= Damages.GetDamageQ(lowestTarget))
+            var targetPos =
+                Prediction.GetPrediction(
+                    lowestTarget,
+                    Spells[SpellSlot.Q].Delay,
+                    lowestTarget.BoundingRadius,
+                    lowestTarget.MoveSpeed).UnitPosition;
+            if (Spells[SpellSlot.Q].IsReady() && Ekko.Menu.Item("l33t.ekko.ks.q").GetValue<bool>()
+                && targetPos.Distance(Player.Position) <= Spells[SpellSlot.Q].Range
+                && lowestTarget.Health <= Damages.GetDamageQ(lowestTarget))
             {
-                var pred = Spells[SpellSlot.Q].GetPrediction(lowestTarget).CastPosition;
-                Spells[SpellSlot.Q].Cast(
-                    pred
-                    + (pred
-                       - Prediction.GetPrediction(
-                           lowestTarget,
-                           Spells[SpellSlot.Q].Delay,
-                           lowestTarget.BoundingRadius,
-                           lowestTarget.MoveSpeed).UnitPosition));
+                var pred = Spells[SpellSlot.Q].GetPrediction(lowestTarget);
+                if (!pred.CollisionObjects.Contains(ObjectManager.Player))
+                {
+                    if (pred.Hitchance >= HitChance.Medium)
+                    {
+                        Spells[SpellSlot.Q].Cast(pred.CastPosition);
+                        lastQCastTick = Ekko.GameTime;
+                    }
+                }
             }
 
             if (Spells[SpellSlot.E].IsReady() && Ekko.Menu.Item("l33t.ekko.ks.e").GetValue<bool>()
                 && lowestTarget.Distance(Player.Position) <= Spells[SpellSlot.E].Range + 425f
                 && lowestTarget.Health <= Player.GetAutoAttackDamage(lowestTarget) + Damages.GetDamageE(lowestTarget))
             {
-                var targetPos =
-                    Prediction.GetPrediction(lowestTarget, Spells[SpellSlot.Q].Delay, lowestTarget.BoundingRadius, lowestTarget.MoveSpeed)
-                        .UnitPosition;
 
                 var dash = Player.Position.Extend(targetPos, Spells[SpellSlot.E].Range);
                 if (dash.IsWall())
@@ -138,7 +143,10 @@ namespace Ekko
             if (Spells[SpellSlot.R].IsReady() && Ekko.EkkoGhost != null && Ekko.EkkoGhost.IsValid && Ekko.Menu.Item("l33t.ekko.ks.r").GetValue<bool>())
             {
                 var enemies =
-                    GameObjects.EnemyHeroes.Where(e => e.Distance(Ekko.EkkoGhost.Position) <= Spells[SpellSlot.R].Range).ToList();
+                    GameObjects.EnemyHeroes.Where(
+                        e =>
+                        Prediction.GetPrediction(e, 1f, e.BoundingRadius, e.MoveSpeed)
+                            .UnitPosition.Distance(Ekko.EkkoGhost.Position) <= Spells[SpellSlot.R].Range).ToList();
                 if (enemies.Any())
                 {
                     if (enemies.Count() >= Ekko.Menu.Item("l33t.ekko.ks.mr").GetValue<Slider>().Value)
@@ -210,8 +218,8 @@ namespace Ekko
                 if (Spells[SpellSlot.Q].IsReady() && Ekko.Menu.Item("l33t.ekko.flee.q").GetValue<bool>())
                 {
                     var line = MinionManager.GetBestLineFarmLocation(
-                        targets.Select(h => h.Position.To2D()).ToList(), 
-                        Spells[SpellSlot.Q].Width, 
+                        targets.Select(h => h.Position.To2D()).ToList(),
+                        Spells[SpellSlot.Q].Width - 5f,
                         Spells[SpellSlot.Q].Range);
                     if (line.MinionsHit >= targets.Count / 2 - 1 && line.MinionsHit >= 1)
                     {
@@ -228,18 +236,19 @@ namespace Ekko
             if (Spells[SpellSlot.E].IsReady() && Ekko.Menu.Item("l33t.ekko.flee.e").GetValue<bool>())
             {
                 var closestTarget = targets.OrderBy(t => t.Distance(Player.Position)).FirstOrDefault();
-                if (closestTarget != null)
+                var farestMinion = closestTarget != null
+                                       ? GameObjects.EnemyMinions.Where(
+                                           m => m.Distance(Player.Position) <= Spells[SpellSlot.E].Range + 425f)
+                                             .OrderByDescending(m => m.Distance(closestTarget.Position))
+                                             .FirstOrDefault()
+                                       : GameObjects.EnemyMinions.Where(
+                                           m => m.Distance(Player.Position) <= Spells[SpellSlot.E].Range + 425f)
+                                             .OrderByDescending(m => m.Distance(Ekko.Player.Position))
+                                             .FirstOrDefault();
+                if (farestMinion != null && farestMinion.IsValidTarget())
                 {
-                    var farestMinion =
-                        GameObjects.EnemyMinions.Where(
-                            m => m.Distance(Player.Position) <= Spells[SpellSlot.E].Range + 425f)
-                            .OrderByDescending(m => m.Distance(closestTarget.Position))
-                            .FirstOrDefault();
-                    if (farestMinion != null && farestMinion.IsValidTarget())
-                    {
-                        Spells[SpellSlot.E].Cast(farestMinion);
-                        FleeMinion = farestMinion;
-                    }
+                    Spells[SpellSlot.E].Cast(farestMinion);
+                    FleeMinion = farestMinion;
                 }
             }
 
@@ -271,7 +280,7 @@ namespace Ekko
                 && targetPos.Distance(Player.Position) <= Spells[SpellSlot.Q].Range)
             {
                 var pred = Spells[SpellSlot.Q].GetPrediction(target);
-                if (!pred.CollisionObjects.Any(c => c.Name.Contains("Yasuo") || c.Name.Contains("yasuo")))
+                if (!pred.CollisionObjects.Contains(ObjectManager.Player))
                 {
                     if (pred.Hitchance >= HitChance.High)
                     {
