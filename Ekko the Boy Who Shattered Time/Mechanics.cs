@@ -273,54 +273,147 @@ namespace Ekko
                 var pred = Spells[SpellSlot.Q].GetPrediction(target);
                 if (!pred.CollisionObjects.Any(c => c.Name.Contains("Yasuo") || c.Name.Contains("yasuo")))
                 {
-                    Spells[SpellSlot.Q].Cast(pred.CastPosition);
-                    lastQCastTick = Ekko.GameTime;
+                    if (pred.Hitchance >= HitChance.High)
+                    {
+                        Spells[SpellSlot.Q].Cast(pred.CastPosition);
+                        lastQCastTick = Ekko.GameTime;
+                    }
                 }
             }
 
-            if (Spells[SpellSlot.E].IsReady() && Ekko.Menu.Item(harass ? "l33t.ekko.harass.e" : "l33t.ekko.combo.e").GetValue<bool>()
-                && targetPos.Distance(Player.Position) <= Spells[SpellSlot.E].Range + 425f)
+            if (Spells[SpellSlot.E].IsReady() && Ekko.Menu.Item(harass ? "l33t.ekko.harass.e" : "l33t.ekko.combo.e").GetValue<bool>())
             {
-                var dash = Player.Position.Extend(targetPos, Spells[SpellSlot.E].Range);
-                if (dash.IsWall())
+                if (Ekko.EkkoField != null && Ekko.EkkoField.IsValid)
                 {
-                    var longestDash = Player.Position;
-                    for (var i = 1; i < Spells[SpellSlot.E].Range; ++i)
+                    var targets = GameObjects.EnemyHeroes.Where(e => e.Distance(Ekko.EkkoField.Position) <= 375f).ToList();
+                    if (targets.Count() >= Ekko.Menu.Item(harass ? "l33t.ekko.harass.ehitc" : "l33t.ekko.combo.ehitc").GetValue<Slider>().Value)
                     {
-                        if (!Player.Position.Extend(targetPos, i).IsWall())
+                        var farTarget =
+                            targets.Where(t => t.Distance(Player.Position) <= Spells[SpellSlot.E].Range + 425f)
+                                .OrderBy(t => t.Distance(Player.Position))
+                                .LastOrDefault();
+                        if (farTarget != null && farTarget.IsValidTarget())
                         {
-                            longestDash = Player.Position.Extend(targetPos, i);
+                            Spells[SpellSlot.E].Cast(farTarget);
                         }
                     }
 
-                    if (longestDash.Distance(targetPos) <= 425f)
+                    if (Ekko.EkkoField.Position.Distance(Player.Position) <= 375f + Spells[SpellSlot.E].Range
+                        && target.Distance(Ekko.EkkoField.Position) <= 375f)
                     {
-                        Spells[SpellSlot.E].Cast(dash);
+                        Spells[SpellSlot.E].Cast(Ekko.EkkoField.Position);
+                    }
+
+                    if (Ekko.EkkoField.Position.Distance(Player.Position) <= 375f + Spells[SpellSlot.E].Range)
+                    {
+                        if (target.Distance(Player.Position.Extend(Ekko.EkkoField.Position, Spells[SpellSlot.E].Range))
+                            <= 425f)
+                        {
+                            Spells[SpellSlot.E].Cast(Ekko.EkkoField.Position);
+                        }
                     }
                 }
-                else
+
+                if (targetPos.Distance(Player.Position) <= Spells[SpellSlot.E].Range + 425f)
                 {
-                    if (dash.Distance(targetPos) <= 425f)
+                    if (Ekko.EkkoField != null && Ekko.EkkoField.IsValid)
                     {
-                        Spells[SpellSlot.E].Cast(dash);
+                        if (targetPos.Distance(Ekko.EkkoField.Position) <= 375f
+                            && Ekko.EkkoField.Position.Distance(Player.Position) <= Spells[SpellSlot.E].Range + 425f)
+                        {
+                            Spells[SpellSlot.E].Cast(Ekko.EkkoField.Position);
+                        }
+                    }
+
+                    var dash = Player.Position.Extend(targetPos, Spells[SpellSlot.E].Range);
+                    if (dash.IsWall())
+                    {
+                        var longestDash = Player.Position;
+                        for (var i = 1; i < Spells[SpellSlot.E].Range; ++i)
+                        {
+                            if (!Player.Position.Extend(targetPos, i).IsWall())
+                            {
+                                longestDash = Player.Position.Extend(targetPos, i);
+                            }
+                        }
+
+                        if (longestDash.Distance(targetPos) <= 425f)
+                        {
+                            Spells[SpellSlot.E].Cast(dash);
+                        }
+                    }
+                    else
+                    {
+                        if (dash.Distance(targetPos) <= 425f)
+                        {
+                            Spells[SpellSlot.E].Cast(dash);
+                        }
                     }
                 }
+
             }
 
-            if (Spells[SpellSlot.W].IsReady() && Ekko.Menu.Item(harass ? "l33t.ekko.harass.w" : "l33t.ekko.combo.w").GetValue<bool>()
-                && Player.Distance(targetPos) <= Spells[SpellSlot.Q].Range - Player.AttackRange
-                && Ekko.GameTime - lastQCastTick < 7000 + 1000 * Spells[SpellSlot.Q].Level - 1)
+            if (Spells[SpellSlot.W].IsReady()
+                && Ekko.Menu.Item(harass ? "l33t.ekko.harass.w" : "l33t.ekko.combo.w").GetValue<bool>())
             {
-                var targetPosition =
-                    Prediction.GetPrediction(
-                        target, 
-                        3f, 
-                        target.BoundingRadius, 
-                        target.MoveSpeed * new float[] { 40, 50, 60, 70, 80 }[Spells[SpellSlot.W].Level - 1])
-                        .UnitPosition;
-                if (targetPosition.Distance(Player.Position) <= Spells[SpellSlot.W].Range)
+                if (Player.Distance(targetPos) <= Spells[SpellSlot.Q].Range - Player.AttackRange
+                    && Ekko.GameTime - lastQCastTick < 7000 + 1000 * Spells[SpellSlot.Q].Level - 1)
                 {
-                    Spells[SpellSlot.W].Cast(targetPos + (targetPos - targetPosition));
+                    // q + w
+                    var targetPosition =
+                        Prediction.GetPrediction(
+                            target,
+                            3f,
+                            target.BoundingRadius,
+                            target.MoveSpeed * new float[] { 40, 50, 60, 70, 80 }[Spells[SpellSlot.W].Level - 1])
+                            .UnitPosition;
+                    if (targetPosition.Distance(Player.Position) <= Spells[SpellSlot.W].Range)
+                    {
+                        var castPos = targetPos + (targetPos - targetPosition);
+                        if (!castPos.IsWall())
+                        {
+                            Spells[SpellSlot.W].Cast(targetPos + (targetPos - targetPosition));
+                        }
+                    }
+                }
+
+                var targets =
+                    GameObjects.EnemyHeroes.Where(e => e.Distance(Player.Position) <= Spells[SpellSlot.W].Range)
+                        .ToList();
+                if (targets.Count()
+                    >= Ekko.Menu.Item(harass ? "l33t.ekko.harass.whitc" : "l33t.ekko.combo.whitc")
+                           .GetValue<Slider>()
+                           .Value)
+                {
+                    // multi w
+                    var predictions =
+                        targets.Select(
+                            wTarget =>
+                            Prediction.GetPrediction(
+                                wTarget,
+                                Spells[SpellSlot.E].Delay + Game.Ping / 2f,
+                                wTarget.BoundingRadius,
+                                wTarget.MoveSpeed)).ToList();
+                    var center = predictions.Aggregate(
+                        new Vector3(),
+                        (current, position) => current + position.UnitPosition);
+
+                    if (!center.IsWall() && center.Distance(Player.Position) <= Spells[SpellSlot.W].Range
+                        && predictions.All(p => p.UnitPosition.Distance(center) <= Spells[SpellSlot.W].Range))
+                    {
+                        Spells[SpellSlot.W].Cast(center);
+                    }
+                }
+
+                { // w on slowed.
+                    var targetPosition =
+                        Prediction.GetPrediction(target, 3f, target.BoundingRadius, target.MoveSpeed).UnitPosition;
+                    if (!targetPosition.IsWall()
+                        && targetPosition.Distance(Player.Position) <= Spells[SpellSlot.W].Range
+                        && target.Distance(Player.Position) <= Spells[SpellSlot.E].Range + 425f)
+                    {
+                        Spells[SpellSlot.W].Cast(targetPosition);
+                    }
                 }
             }
 

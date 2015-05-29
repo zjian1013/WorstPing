@@ -65,6 +65,8 @@ namespace Ekko
 
             Ekko.EkkoGhost =
                 ObjectManager.Get<Obj_GeneralParticleEmitter>().FirstOrDefault(p => p.Name.Equals(Ekko.EkkoGhostName));
+            Ekko.EkkoField =
+                ObjectManager.Get<Obj_GeneralParticleEmitter>().FirstOrDefault(p => p.Name.Equals(Ekko.EkkoFieldName));
         }
 
         #endregion
@@ -137,9 +139,16 @@ namespace Ekko
             }
 
             var particle = sender as Obj_GeneralParticleEmitter;
-            if (particle != null && particle.Name.Equals(Ekko.EkkoGhostName))
+            if (particle != null)
             {
-                Ekko.EkkoGhost = particle;
+                if (particle.Name.Equals(Ekko.EkkoGhostName))
+                {
+                    Ekko.EkkoGhost = particle;
+                }
+                else if (particle.Name.Equals(Ekko.EkkoFieldName))
+                {
+                    Ekko.EkkoField = particle;
+                }
             }
         }
 
@@ -161,9 +170,16 @@ namespace Ekko
             }
 
             var particle = sender as Obj_GeneralParticleEmitter;
-            if (particle != null && particle.Name.Equals(Ekko.EkkoGhostName))
+            if (particle != null)
             {
-                Ekko.EkkoGhost = null;
+                if (particle.Name.Equals(Ekko.EkkoGhostName))
+                {
+                    Ekko.EkkoGhost = null;
+                }
+                else if (particle.Name.Equals(Ekko.EkkoFieldName))
+                {
+                    Ekko.EkkoField = particle;
+                }
             }
         }
 

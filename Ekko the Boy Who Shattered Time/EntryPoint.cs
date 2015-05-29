@@ -22,11 +22,14 @@
 namespace Ekko
 {
     using System;
-    using System.Drawing;
     using System.Linq;
 
     using LeagueSharp;
     using LeagueSharp.Common;
+
+    using SharpDX;
+
+    using Color = System.Drawing.Color;
 
     /// <summary>
     ///     The entry point.
@@ -63,6 +66,9 @@ namespace Ekko
                 combo.AddItem(new MenuItem("l33t.ekko.combo.e", "Use E")).SetValue(true);
                 combo.AddItem(new MenuItem("l33t.ekko.combo.r", "Use R")).SetValue(true);
                 combo.AddItem(new MenuItem("l33t.ekko.combo.space", string.Empty));
+                combo.AddItem(new MenuItem("l33t.ekko.combo.whitc", "Use W if hit targets amount")).SetValue(new Slider(3, 1, 5));
+                combo.AddItem(new MenuItem("l33t.ekko.combo.ehitc", "Use E into W if stun targets minimum")).SetValue(new Slider(3, 1, 5));
+                combo.AddItem(new MenuItem("l33t.ekko.combo.spacew", string.Empty));
                 combo.AddItem(
                     new MenuItem("l33t.ekko.combo.rbackenable", "Enable Use R if lose % health").SetValue(false));
                 combo.AddItem(
@@ -78,6 +84,9 @@ namespace Ekko
                 harass.AddItem(new MenuItem("l33t.ekko.harass.q", "Use Q")).SetValue(true);
                 harass.AddItem(new MenuItem("l33t.ekko.harass.w", "Use W")).SetValue(true);
                 harass.AddItem(new MenuItem("l33t.ekko.harass.e", "Use E")).SetValue(true);
+                harass.AddItem(new MenuItem("l33t.ekko.harass.space", string.Empty));
+                harass.AddItem(new MenuItem("l33t.ekko.harass.whitc", "Use W if hit targets minimum")).SetValue(new Slider(3, 1, 5));
+                harass.AddItem(new MenuItem("l33t.ekko.harass.ehitc", "Use E into W if stun targets minimum")).SetValue(new Slider(3, 1, 5));
             }
 
             var ks = menu.AddSubMenu(new Menu("Kill Steal", "l33t.ekko.ks"));
@@ -104,9 +113,9 @@ namespace Ekko
                 farming.AddItem(new MenuItem("l33t.ekko.farming.lcq", "Use Q while Lane Clear")).SetValue(true);
                 farming.AddItem(new MenuItem("l33t.ekko.farming.space", string.Empty));
                 farming.AddItem(new MenuItem("l33t.ekko.farming.lhqh", "[Last Hit] If Q hits and kills"))
-                    .SetValue(new Slider(4, 0, 8));
+                    .SetValue(new Slider(4, 1, 8));
                 farming.AddItem(new MenuItem("l33t.ekko.farming.lcqh", "[Lane Clear] If Q hits"))
-                    .SetValue(new Slider(4, 0, 8));
+                    .SetValue(new Slider(4, 1, 8));
             }
 
             var drawing = menu.AddSubMenu(new Menu("Drawings", "l33t.ekko.drawing"));
@@ -116,6 +125,7 @@ namespace Ekko
                 drawing.AddItem(new MenuItem("l33t.ekko.drawing.w", "Draw W")).SetValue(new Circle(false, Color.Purple));
                 drawing.AddItem(new MenuItem("l33t.ekko.drawing.e", "Draw E")).SetValue(new Circle(false, Color.Plum));
                 drawing.AddItem(new MenuItem("l33t.ekko.drawing.r", "Draw R")).SetValue(new Circle(true, Color.Teal));
+                drawing.AddItem(new MenuItem("l33t.ekko.drawing.classic", "Draw Classic Circles")).SetValue(false);
             }
 
             var skin = menu.AddSubMenu(new Menu("Skin Changer", "l33t.ekko.skinchanger"));
@@ -128,37 +138,78 @@ namespace Ekko
             Game.OnUpdate += OnUpdate;
             Drawing.OnDraw += args =>
                 {
+                    var classic = menu.Item("l33t.ekko.drawing.classic").GetValue<bool>();
                     if (Ekko.Spells[SpellSlot.Q].IsReady() && menu.Item("l33t.ekko.drawing.q").GetValue<Circle>().Active)
                     {
-                        Drawing.DrawCircle(
-                            Ekko.Player.Position, 
-                            Ekko.Spells[SpellSlot.Q].Range, 
-                            menu.Item("l33t.ekko.drawing.q").GetValue<Circle>().Color);
+                        if (classic)
+                        {
+                            Drawing.DrawCircle(
+                                Ekko.Player.Position,
+                                Ekko.Spells[SpellSlot.Q].Range,
+                                menu.Item("l33t.ekko.drawing.q").GetValue<Circle>().Color);
+                        }
+                        else
+                        {
+                            Render.Circle.DrawCircle(
+                                Ekko.Player.Position,
+                                Ekko.Spells[SpellSlot.Q].Range,
+                                menu.Item("l33t.ekko.drawing.q").GetValue<Circle>().Color);
+                        }
                     }
 
                     if (Ekko.Spells[SpellSlot.W].IsReady() && menu.Item("l33t.ekko.drawing.w").GetValue<Circle>().Active)
                     {
-                        Drawing.DrawCircle(
-                            Ekko.Player.Position, 
-                            Ekko.Spells[SpellSlot.W].Range, 
-                            menu.Item("l33t.ekko.drawing.w").GetValue<Circle>().Color);
+                        if (classic)
+                        {
+                            Drawing.DrawCircle(
+                                Ekko.Player.Position,
+                                Ekko.Spells[SpellSlot.W].Range,
+                                menu.Item("l33t.ekko.drawing.w").GetValue<Circle>().Color);
+                        }
+                        else
+                        {
+                            Render.Circle.DrawCircle(
+                                Ekko.Player.Position,
+                                Ekko.Spells[SpellSlot.W].Range,
+                                menu.Item("l33t.ekko.drawing.w").GetValue<Circle>().Color);
+                        }
                     }
 
                     if (Ekko.Spells[SpellSlot.E].IsReady() && menu.Item("l33t.ekko.drawing.e").GetValue<Circle>().Active)
                     {
-                        Drawing.DrawCircle(
-                            Ekko.Player.Position, 
-                            Ekko.Spells[SpellSlot.E].Range, 
-                            menu.Item("l33t.ekko.drawing.e").GetValue<Circle>().Color);
+                        if (classic)
+                        {
+                            Drawing.DrawCircle(
+                                Ekko.Player.Position,
+                                Ekko.Spells[SpellSlot.E].Range,
+                                menu.Item("l33t.ekko.drawing.e").GetValue<Circle>().Color);
+                        }
+                        else
+                        {
+                            Render.Circle.DrawCircle(
+                                Ekko.Player.Position,
+                                Ekko.Spells[SpellSlot.E].Range,
+                                menu.Item("l33t.ekko.drawing.e").GetValue<Circle>().Color);
+                        }
                     }
 
                     if (Ekko.Spells[SpellSlot.R].IsReady() && Ekko.EkkoGhost != null && Ekko.EkkoGhost.IsValid
                         && menu.Item("l33t.ekko.drawing.r").GetValue<Circle>().Active)
                     {
-                        Drawing.DrawCircle(
-                            Ekko.EkkoGhost.Position, 
-                            Ekko.Spells[SpellSlot.R].Range, 
-                            menu.Item("l33t.ekko.drawing.r").GetValue<Circle>().Color);
+                        if (classic)
+                        {
+                            Drawing.DrawCircle(
+                                Ekko.EkkoGhost.Position,
+                                Ekko.Spells[SpellSlot.R].Range,
+                                menu.Item("l33t.ekko.drawing.r").GetValue<Circle>().Color);
+                        }
+                        else
+                        {
+                            Render.Circle.DrawCircle(
+                                Ekko.EkkoGhost.Position,
+                                Ekko.Spells[SpellSlot.R].Range,
+                                menu.Item("l33t.ekko.drawing.r").GetValue<Circle>().Color);
+                        }
                     }
                 };
         }

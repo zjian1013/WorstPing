@@ -52,14 +52,19 @@ namespace Ekko
         #region Static Fields
 
         /// <summary>
-        ///     The Random.
+        ///     The Old Health Percent.
         /// </summary>
-        private static readonly Random Random = new Random(DateTime.Now.Millisecond);
+        public static readonly IDictionary<int, float> OldHealthPercent = new Dictionary<int, float>();
 
         /// <summary>
         ///     <c>Ekko</c>'s spells.
         /// </summary>
         public static readonly IDictionary<SpellSlot, Spell> Spells = new Dictionary<SpellSlot, Spell>();
+
+        /// <summary>
+        ///     The Random.
+        /// </summary>
+        private static readonly Random Random = new Random(DateTime.Now.Millisecond);
 
         /// <summary>
         ///     The Last Move Command Tick.
@@ -68,16 +73,23 @@ namespace Ekko
 
         #endregion
 
-        #region Fields
+        #region Public Properties
 
         /// <summary>
-        ///     The Old Health Percent.
+        /// Gets or sets the <c>Ekko</c> field.
         /// </summary>
-        public static readonly IDictionary<int, float> OldHealthPercent = new Dictionary<int, float>();
+        public static Obj_GeneralParticleEmitter EkkoField { get; set; }
 
-        #endregion
-
-        #region Public Properties
+        /// <summary>
+        /// Gets the <c>Ekko</c> field name.
+        /// </summary>
+        public static string EkkoFieldName
+        {
+            get
+            {
+                return "Ekko_Base_W_Detonate_Slow.troy";
+            }
+        }
 
         /// <summary>
         ///     Gets or sets the <c>Ekko</c> ghost.
@@ -150,12 +162,12 @@ namespace Ekko
             bool useFixedDistance = true, 
             bool randomizeMinDistance = true)
         {
-            if (Ekko.GameTime - lastMoveCommandT < Delay && !overrideTimer)
+            if (GameTime - lastMoveCommandT < Delay && !overrideTimer)
             {
                 return;
             }
 
-            lastMoveCommandT = Ekko.GameTime;
+            lastMoveCommandT = GameTime;
 
             if (Player.ServerPosition.Distance(position, true) < holdAreaRadius * holdAreaRadius)
             {
