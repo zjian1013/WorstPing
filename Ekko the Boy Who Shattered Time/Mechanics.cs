@@ -21,7 +21,6 @@
 // --------------------------------------------------------------------------------------------------------------------
 namespace Ekko
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -105,7 +104,7 @@ namespace Ekko
                         Spells[SpellSlot.Q].Cast(farmLocation.Position);
                     }
                 }
-                else if (Ekko.Menu.Item("l33t.ekko.farming.lhq").GetValue<bool>())
+                else if (Ekko.Menu.Item("l33t.ekko.farming.lhq").GetValue<bool>() && Ekko.Orbwalker.ActiveMode.Equals(Orbwalking.OrbwalkingMode.LastHit))
                 {
                     var farmLocation =
                         GetBestLineFarmLocation(
