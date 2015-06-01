@@ -54,7 +54,7 @@ namespace Ekko
         /// <summary>
         ///     The Old Health Percent.
         /// </summary>
-        public static readonly IDictionary<int, float> OldHealthPercent = new Dictionary<int, float>();
+        public static readonly IDictionary<int, float> OldHealth = new Dictionary<int, float>();
 
         /// <summary>
         ///     <c>Ekko</c>'s spells.

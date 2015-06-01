@@ -477,9 +477,10 @@ namespace Ekko
                     }
 
                     if (Ekko.Menu.Item("l33t.ekko.combo.rbackenable").GetValue<bool>()
-                        && Ekko.OldHealthPercent.ContainsKey(Ekko.GameTime - 4000))
+                        && Ekko.OldHealth.ContainsKey(Ekko.GameTime - 4000))
                     {
-                        if (Ekko.OldHealthPercent[Ekko.GameTime - 4000] - Player.HealthPercent
+                        if (Ekko.OldHealth[Ekko.GameTime - 4000] / Ekko.Player.MaxHealth * 100 > 5
+                            && Ekko.Player.Health / Ekko.OldHealth[Ekko.GameTime - 4000] * 100
                             <= Ekko.Menu.Item("l33t.ekko.combo.rback").GetValue<Slider>().Value)
                         {
                             Spells[SpellSlot.R].Cast();

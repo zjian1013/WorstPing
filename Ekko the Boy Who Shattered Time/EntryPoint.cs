@@ -234,14 +234,14 @@ namespace Ekko
 
             if (Ekko.Spells[SpellSlot.R].IsReady() && Ekko.Menu.Item("l33t.ekko.combo.rbackenable").GetValue<bool>())
             {
-                if (!Ekko.OldHealthPercent.ContainsKey(Ekko.GameTime))
+                if (!Ekko.OldHealth.ContainsKey(Ekko.GameTime))
                 {
-                    Ekko.OldHealthPercent.Add(Ekko.GameTime, Ekko.Player.Health);
+                    Ekko.OldHealth.Add(Ekko.GameTime, Ekko.Player.Health);
                 }
 
-                foreach (var contents in Ekko.OldHealthPercent.ToArray().Where(contents => contents.Key + 4000 < Ekko.GameTime))
+                foreach (var contents in Ekko.OldHealth.ToArray().Where(contents => contents.Key + 4000 < Ekko.GameTime))
                 {
-                    Ekko.OldHealthPercent.Remove(contents.Key);
+                    Ekko.OldHealth.Remove(contents.Key);
                 }
             }
 
