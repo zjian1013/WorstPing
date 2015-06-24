@@ -6,6 +6,8 @@ using LeagueSharp.Common.Data;
 
 namespace Karma
 {
+    using ItemData = LeagueSharp.Common.Data.ItemData;
+
     /// <summary>
     ///     Karma Class, contains main loading requirements.
     /// </summary>

@@ -5,6 +5,8 @@ using LeagueSharp.Common.Data;
 
 namespace Karma
 {
+    using ItemData = LeagueSharp.Common.Data.ItemData;
+
     /// <summary>
     ///     Instances Class, contains global instances
     /// </summary>
